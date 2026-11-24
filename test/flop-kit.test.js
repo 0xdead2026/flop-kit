@@ -108,6 +108,8 @@ test('Local Mission Control dashboard serves HTML, /api/doctor, and /api/verify 
     assert.equal(htmlRes.status, 200);
     const html = await htmlRes.text();
     assert.match(html, /MISSION CONTROL/);
+    assert.doesNotMatch(html, /id="langBtn"/);
+    assert.match(html, /<html lang="en">/);
     const dashScript = html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
     assert.ok(dashScript, 'Dashboard inline script missing');
     assert.doesNotThrow(() => new Function(dashScript), 'Dashboard inline JS must parse without syntax errors');
@@ -116,6 +118,8 @@ test('Local Mission Control dashboard serves HTML, /api/doctor, and /api/verify 
     assert.equal(termRes.status, 200);
     const termHtml = await termRes.text();
     assert.match(termHtml, /0xdead2026/);
+    assert.doesNotMatch(termHtml, /id="langToggle"/);
+    assert.match(termHtml, /<html lang="en">/);
     const termScript = termHtml.match(/<script>([\s\S]*?)<\/script>/)?.[1];
     assert.ok(termScript, 'Terminal showcase inline script missing');
     assert.doesNotThrow(() => new Function(termScript), 'Terminal showcase inline JS must parse without syntax errors');

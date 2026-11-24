@@ -20,7 +20,7 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;');
 }
 
-export function renderDashboardHtml(defaultLang = 'en') {
+export function renderDashboardHtml() {
   const brandJson = JSON.stringify({
     toolName: BRANDING.toolName,
     version: BRANDING.version,
@@ -31,11 +31,10 @@ export function renderDashboardHtml(defaultLang = 'en') {
     cliPackage: OFFICIAL_CLI.cliPackage,
     testnetGenesis: NETWORKS.testnet.expectedGenesis,
     links: OFFICIAL_LINKS,
-    defaultLang,
   });
 
   return `<!doctype html>
-<html lang="${defaultLang === 'tr' ? 'tr' : 'en'}">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -99,7 +98,7 @@ export function renderDashboardHtml(defaultLang = 'en') {
   .kv { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px solid rgba(148,163,184,0.12); font-size: 0.88rem; }
   .kv:last-child { border-bottom: none; }
   .kv .k { color: var(--muted); }
-  .kv .v { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; text-align: right; word-break: break-all; }
+  .kv .v { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; text-align: right; word-break: break-word; overflow-wrap: anywhere; }
   .badge { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.74rem; font-weight: 700; }
   .b-ok { background: rgba(52,211,153,0.16); color: var(--green); }
   .b-warn { background: rgba(251,191,36,0.16); color: var(--yellow); }
@@ -137,11 +136,10 @@ export function renderDashboardHtml(defaultLang = 'en') {
   <header>
     <div class="brand">
       <h1>FLOP-KIT v${escapeHtml(BRANDING.version)} · MISSION CONTROL</h1>
-      <p id="subtitle"></p>
+      <p id="subtitle">Zero-Dependency FLOP Network Testnet Cockpit &amp; Live Telemetry</p>
     </div>
     <div class="pills">
       <span class="pill green">0 Dependencies · Local 127.0.0.1</span>
-      <button class="pill" id="langBtn"></button>
       <a class="pill warn" href="/terminal">Terminal View</a>
       <button class="pill" id="refreshBtn">↻ Refresh</button>
       <a class="pill" href="${escapeHtml(BRANDING.repoUrl)}" target="_blank" rel="noreferrer">GitHub</a>
@@ -149,7 +147,7 @@ export function renderDashboardHtml(defaultLang = 'en') {
     </div>
   </header>
 
-  <div class="banner" id="unscoredBanner"></div>
+  <div class="banner" id="unscoredBanner">⚠ UNSCORED OPENING NOTICE: Early Testnet activity earns ZERO until the publicly announced activation block (no backfill). Official FLOP Labs has NO Discord, Telegram, Reddit, or Medium.</div>
 
   <div class="grid">
     <section class="card">
@@ -213,55 +211,26 @@ export function renderDashboardHtml(defaultLang = 'en') {
 
 <script>
 const CFG = ${brandJson};
-let lang = CFG.defaultLang === 'tr' ? 'tr' : 'en';
 let calcRole = 'agent';
 
-const I18N = {
-  en: {
-    subtitle: 'Zero-Dependency FLOP Network Testnet Cockpit & Live Telemetry',
-    langBtn: 'TR / Türkçe',
-    banner: '⚠ UNSCORED OPENING NOTICE: Early Testnet activity earns ZERO until the publicly announced activation block (no backfill). Official FLOP Labs has NO Discord, Telegram, Reddit, or Medium.',
-    calcLabelAgent: 'Estimated Agent $FLOP Allocation:',
-    calcLabelMiner: 'Estimated Miner $FLOP Allocation:',
-    calcLabelVal: 'Number of Mainnet Validator Seats (1.2M $FLOP each):',
-    verifyBtn: 'Verify URL',
-    copyBtn: 'Copy Command',
-    copied: 'Copied!',
-  },
-  tr: {
-    subtitle: 'Sıfır Bağımlılıklı FLOP Network Testnet Kokpiti & Canlı Telemetri',
-    langBtn: 'EN / English',
-    banner: '⚠ PUANSIZ AÇILIŞ UYARISI: Kamuya duyurulacak aktivasyon bloğundan önceki erken Testnet işlemleri SIFIR puan alır (geriye dönük sayım yok). Resmi FLOP Labs Discord, Telegram, Reddit veya Medium kanalı YOKTUR.',
-    calcLabelAgent: 'Tahmini Agent $FLOP Tahsisi:',
-    calcLabelMiner: 'Tahmini Miner $FLOP Tahsisi:',
-    calcLabelVal: 'Mainnet Validatör Koltuk Sayısı (Koltuk başı 1.2M $FLOP):',
-    verifyBtn: 'Linki Doğrula',
-    copyBtn: 'Komutu Kopyala',
-    copied: 'Kopyalandı!',
-  }
+const TEXT = {
+  calcLabelAgent: 'Estimated Agent $FLOP Allocation:',
+  calcLabelMiner: 'Estimated Miner $FLOP Allocation:',
+  calcLabelVal: 'Number of Mainnet Validator Seats (1.2M $FLOP each):',
+  copyBtn: 'Copy Command',
+  copied: 'Copied!',
 };
 
 function fmt(n) { return (n === null || n === undefined) ? '—' : Number(n).toLocaleString('en-US'); }
 function kv(k, v) { return '<div class="kv"><span class="k">' + k + '</span><span class="v">' + v + '</span></div>'; }
 
-function applyLang() {
-  const d = I18N[lang];
-  document.getElementById('subtitle').textContent = d.subtitle;
-  document.getElementById('langBtn').textContent = d.langBtn;
-  document.getElementById('unscoredBanner').textContent = d.banner;
-  document.getElementById('verifyBtn').textContent = d.verifyBtn;
-  document.getElementById('copyBtn').textContent = d.copyBtn;
-  updateCalc();
-}
-
 function updateCalc() {
-  const d = I18N[lang];
   const val = Math.max(0, Number(document.getElementById('calcInput').value) || 0);
   const label = document.getElementById('calcLabel');
   let html = '', liqPct = 0;
 
   if (calcRole === 'agent') {
-    label.textContent = d.calcLabelAgent;
+    label.textContent = TEXT.calcLabelAgent;
     const burn = val * 0.75;
     const liq = val * 0.25;
     liqPct = 25;
@@ -270,7 +239,7 @@ function updateCalc() {
       kv('Consumed on Mainnet Inference (75%)', fmt(burn) + ' $FLOP') +
       kv('Max Liquid Unlocked (3:1 rule, 25%)', '<strong style="color:var(--green)">' + fmt(liq) + ' $FLOP</strong>');
   } else if (calcRole === 'miner') {
-    label.textContent = d.calcLabelMiner;
+    label.textContent = TEXT.calcLabelMiner;
     const tge = val * 0.25;
     const locked = val * 0.75;
     liqPct = 25;
@@ -279,7 +248,7 @@ function updateCalc() {
       kv('Locked (1:1 earn-to-unlock, 75%)', fmt(locked) + ' $FLOP') +
       kv('Usable as Mainnet Miner Stake', '<span class="badge b-ok">YES</span>');
   } else {
-    label.textContent = d.calcLabelVal;
+    label.textContent = TEXT.calcLabelVal;
     const seats = Math.max(1, Math.floor(val || 1));
     const total = seats * 1200000;
     liqPct = 0;
@@ -379,11 +348,10 @@ document.getElementById('calcInput').addEventListener('input', updateCalc);
 document.getElementById('cmdNet').addEventListener('change', updateCmd);
 document.getElementById('cmdCap').addEventListener('input', updateCmd);
 document.getElementById('refreshBtn').addEventListener('click', () => { loadTelemetry(); loadDoctor(); });
-document.getElementById('langBtn').addEventListener('click', () => { lang = lang === 'en' ? 'tr' : 'en'; applyLang(); });
 document.getElementById('copyBtn').addEventListener('click', async () => {
   await navigator.clipboard.writeText(document.getElementById('cmdPreview').textContent);
-  document.getElementById('copyBtn').textContent = I18N[lang].copied;
-  setTimeout(() => { document.getElementById('copyBtn').textContent = I18N[lang].copyBtn; }, 1500);
+  document.getElementById('copyBtn').textContent = TEXT.copied;
+  setTimeout(() => { document.getElementById('copyBtn').textContent = TEXT.copyBtn; }, 1500);
 });
 document.getElementById('verifyBtn').addEventListener('click', async () => {
   const u = document.getElementById('verifyInput').value.trim();
@@ -396,7 +364,8 @@ document.getElementById('verifyBtn').addEventListener('click', async () => {
     kv('Detail', data.reason || '');
 });
 
-applyLang();
+document.getElementById('copyBtn').textContent = TEXT.copyBtn;
+updateCalc();
 updateCmd();
 loadTelemetry();
 loadDoctor();
@@ -406,10 +375,9 @@ setInterval(loadTelemetry, 20000);
 </html>`;
 }
 
-export function renderTerminalShowcaseHtml(defaultLang = 'tr') {
-  const isTr = defaultLang === 'tr';
+export function renderTerminalShowcaseHtml() {
   return `<!doctype html>
-<html lang="${isTr ? 'tr' : 'en'}">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -464,7 +432,6 @@ export function renderTerminalShowcaseHtml(defaultLang = 'tr') {
 <body>
   <div class="controls">
     <a class="btn" href="/">← Mission Control Dashboard</a>
-    <button class="btn" id="langToggle"></button>
   </div>
   <div class="window">
     <div class="titlebar">
@@ -496,68 +463,37 @@ export function renderTerminalShowcaseHtml(defaultLang = 'tr') {
     </div>
   </div>
 <script>
-let lang = ${JSON.stringify(isTr ? 'tr' : 'en')};
 const COPY = {
-  tr: {
-    btn: 'Switch to English (EN)',
-    tagline: 'Sıfır Bağımlılıklı FLOP Network Testnet Kokpiti & Kontrol Merkezi',
-    warnTitle: '⚠ GÜVENLİK & TESTNET GERÇEKLİK KONTROLÜ',
-    warnLines: [
-      '• Sıfır dış bağımlılık (0 npm paketi) — kodun her satırı yerelde denetlenebilir.',
-      '• ASLA seed phrase, private key veya gerçek mainnet parası istemez.',
-      '• Açılış aşaması PUANSIZDIR (unscored); puanlama aktivasyon bloğunda başlar (geriye dönük sayım yok).',
-      '• Resmi FLOP Discord, Telegram, Reddit veya Medium YOKTUR — sahte gruplara dikkat et.'
-    ],
-    menuTitle: 'ANA KONTROL MENÜSÜ',
-    items: [
-      '[1] ◈  Canlı Ağ Durumu & Genesis Doğrulama (Testnet + Devnet)',
-      '[2] ◉  Aktivasyon Takipçisi (Runtime Yükseltme & Faucet Geçiş Alarmı)',
-      '[3] ✚  Sistem Doktoru & Rol Uygunluk Analizi (CPU / RAM / GPU)',
-      '[4] ▶  $0 Agent Merkezi (Keystore, Resmi session run, Hermes, Faucet)',
-      '[5] ◆  Validator Hazırlık & Devnet Prova Kanıt Şablonu Üretici',
-      '[6] ▲  Miner Donanım Kontrolü (NVIDIA 16GB+ VRAM & Docker)',
-      '[7] ∑  Airdrop & Kilit Açılım Simülatörü (3:1 Agent / Miner / Validator)',
-      '[8] ◎  Resmi Domain & Phishing Link Doğrulayıcı',
-      '[9] ⊞  Yerel Mission Control Web Panelini Başlat (127.0.0.1)',
-      '[0] ✕  flop-kit Çıkış'
-    ],
-    hint: '↑/↓ ok tuşları (veya 1-9) + Enter · [L] Dil Değiştir · [Q] Çıkış'
-  },
-  en: {
-    btn: 'Türkçeye Geç (TR)',
-    tagline: 'Zero-Dependency FLOP Network Testnet Cockpit & Mission Control',
-    warnTitle: '⚠ SECURITY & TESTNET REALITY CHECK',
-    warnLines: [
-      '• Zero external dependencies (0 npm packages) — every line is locally auditable.',
-      '• NEVER asks for seed phrases, private keys, or real mainnet funds.',
-      '• Opening phase is UNSCORED until the announced activation block (no backfill).',
-      '• NO official FLOP Discord, Telegram, Reddit, or Medium exists — watch out for scams.'
-    ],
-    menuTitle: 'MAIN CONTROL MENU',
-    items: [
-      '[1] ◈  Live Network Status & Genesis Check (Testnet + Devnet)',
-      '[2] ◉  Activation Sniper (Watch Runtime Upgrade & Faucet Switch)',
-      '[3] ✚  System Doctor & Role Eligibility Audit (CPU / RAM / GPU)',
-      '[4] ▶  $0 Agent Hub (Keystore, Official session run, Hermes, Faucet)',
-      '[5] ◆  Validator Prep & Devnet Rehearsal Receipt Generator',
-      '[6] ▲  Miner Hardware Readiness (NVIDIA 16GB+ VRAM & Docker)',
-      '[7] ∑  Airdrop & Unlock Math Simulator (3:1 Agent / Miner / Validator)',
-      '[8] ◎  Official Domain & Anti-Phishing URL Verifier',
-      '[9] ⊞  Launch Local Mission Control Web Dashboard (127.0.0.1)',
-      '[0] ✕  Exit flop-kit'
-    ],
-    hint: 'Use ↑/↓ arrows (or 1-9) + Enter · [L] Language · [Q] Quit'
-  }
+  tagline: 'Zero-Dependency FLOP Network Testnet Cockpit & Mission Control',
+  warnTitle: '⚠ SECURITY & TESTNET REALITY CHECK',
+  warnLines: [
+    '• Zero external dependencies (0 npm packages) — every line is locally auditable.',
+    '• NEVER asks for seed phrases, private keys, or real mainnet funds.',
+    '• Opening phase is UNSCORED until the announced activation block (no backfill).',
+    '• NO official FLOP Discord, Telegram, Reddit, or Medium exists — watch out for scams.'
+  ],
+  menuTitle: 'MAIN CONTROL MENU',
+  items: [
+    '[1] ◈  Live Network Status & Genesis Check (Testnet + Devnet)',
+    '[2] ◉  Activation Sniper (Watch Runtime Upgrade & Faucet Switch)',
+    '[3] ✚  System Doctor & Role Eligibility Audit (CPU / RAM / GPU)',
+    '[4] ▶  $0 Agent Hub (Keystore, Official session run, Hermes, Faucet)',
+    '[5] ◆  Validator Prep & Devnet Rehearsal Receipt Generator',
+    '[6] ▲  Miner Hardware Readiness (NVIDIA 16GB+ VRAM & Docker)',
+    '[7] ∑  Airdrop & Unlock Math Simulator (3:1 Agent / Miner / Validator)',
+    '[8] ◎  Official Domain & Anti-Phishing URL Verifier',
+    '[9] ⊞  Launch Local Mission Control Web Dashboard (127.0.0.1)',
+    '[0] ✕  Exit flop-kit'
+  ],
+  hint: 'Use ↑/↓ arrows (or 1-9) + Enter · [L] Language · [Q] Quit'
 };
 function render() {
-  const d = COPY[lang];
-  document.getElementById('langToggle').textContent = d.btn;
-  document.getElementById('tagline').textContent = d.tagline;
-  document.getElementById('warnTitle').textContent = d.warnTitle;
-  document.getElementById('warnBody').innerHTML = d.warnLines.map(l => '<div>' + l + '</div>').join('');
-  document.getElementById('menuTitle').textContent = d.menuTitle;
-  document.getElementById('menuBody').innerHTML = d.items.map((l, i) => '<div class="item' + (i === 0 ? ' active' : '') + '">' + (i === 0 ? '▸ ' : '  ') + l + '</div>').join('');
-  document.getElementById('footerHint').textContent = d.hint;
+  document.getElementById('tagline').textContent = COPY.tagline;
+  document.getElementById('warnTitle').textContent = COPY.warnTitle;
+  document.getElementById('warnBody').innerHTML = COPY.warnLines.map(l => '<div>' + l + '</div>').join('');
+  document.getElementById('menuTitle').textContent = COPY.menuTitle;
+  document.getElementById('menuBody').innerHTML = COPY.items.map((l, i) => '<div class="item' + (i === 0 ? ' active' : '') + '">' + (i === 0 ? '▸ ' : '  ') + l + '</div>').join('');
+  document.getElementById('footerHint').textContent = COPY.hint;
 }
 async function loadLive() {
   try {
@@ -574,7 +510,6 @@ async function loadLive() {
     }
   } catch {}
 }
-document.getElementById('langToggle').addEventListener('click', () => { lang = lang === 'tr' ? 'en' : 'tr'; render(); });
 render();
 loadLive();
 </script>
@@ -610,13 +545,13 @@ export function createDashboardServer(lang = 'en') {
 
     if (parsedUrl.pathname === '/terminal') {
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-      res.end(renderTerminalShowcaseHtml(lang));
+      res.end(renderTerminalShowcaseHtml());
       return;
     }
 
     if (parsedUrl.pathname === '/' || parsedUrl.pathname === '/index.html') {
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-      res.end(renderDashboardHtml(lang));
+      res.end(renderDashboardHtml());
       return;
     }
 
