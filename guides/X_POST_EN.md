@@ -105,3 +105,24 @@ $0 paths into the 4.4B $FLOP genesis pool:
 Full open-source repo + EN/TR docs:
 https://github.com/0xdead2026/flop-kit
 ```
+
+---
+
+## Option C: v1.1.0 Release Post (Signed Testnet 10 $FLOP Faucet Claim!)
+
+```text
+just shipped flop-kit v1.1.0 🚀
+
+@flop_labs switched faucet.flop.network over to FLOP Testnet — and even the official `@flop-labs/cli@0.8.3` doesn't have a signed Testnet claim command yet (confirmed in flop.network/llms.txt).
+
+so i added the official `flop-faucet-agent/v1` signed claim flow directly into flop-kit (still 0 external npm dependencies):
+
+• `node bin/flop-kit.js status` -> live `/chain` & `/limits` faucet telemetry (status, pending queue, daily remaining cap)
+• `node bin/flop-kit.js claim` -> verifies faucet + RPC block 0 genesis before signing, submits to `/v1/testnet/agent-claims`, and automatically persists your idempotent nonce for safe `grant_pending` retries
+• updated to `@flop-labs/cli@0.8.3` & `@flop-labs/sdk@0.11.0`
+
+open-source repo (MIT, 0 dependencies):
+https://github.com/0xdead2026/flop-kit
+
+testnet is still unscored (no backfill before voucher start block), but setting up a dedicated sr25519 agent keystore & queuing your first 10 test $FLOP is $0 👇
+```

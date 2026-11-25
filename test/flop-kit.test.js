@@ -11,10 +11,19 @@ import {
   calculateMinerUnlock,
   calculateValidatorUnlock,
 } from '../src/modules/calculator.js';
+import {
+  buildAgentClaimMessage,
+  validateClaimNonce,
+} from '../src/modules/claim.js';
 import { createDashboardServer } from '../src/modules/dashboard.js';
 import { formatObservationReceipt } from '../src/modules/validator.js';
 import { classifyUrl } from '../src/modules/verify.js';
-import { assertOfficialUrl, hexBlockToNumber, isOfficialFlopHost } from '../src/rpc.js';
+import {
+  assertOfficialUrl,
+  hexBlockToNumber,
+  isOfficialFlopHost,
+  parseFaucetApiProbe,
+} from '../src/rpc.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CLI_PATH = path.resolve(__dirname, '..', 'bin', 'flop-kit.js');
@@ -66,10 +75,46 @@ test('Airdrop unlock math matches ratified protocol formulas', () => {
 
 test('Official session command builder uses session run and spend cap', () => {
   const cmd = buildOfficialSessionCommand({ network: 'devnet', maxFlop: '0.02' });
-  assert.match(cmd, /@flop-labs\/cli@0\.7\.0/);
+  assert.match(cmd, /@flop-labs\/cli@0\.8\.3/);
   assert.match(cmd, /session run/);
   assert.match(cmd, /--max-flop 0\.02/);
   assert.doesNotMatch(cmd, /\bflop chat\b/);
+});
+
+test('Signed Testnet agent claim builder and faucet API probe parser follow official spec', () => {
+  assert.equal(validateClaimNonce('1795619961151'), true);
+  assert.equal(validateClaimNonce('0'), false);
+  assert.equal(validateClaimNonce('01234'), false);
+  assert.equal(validateClaimNonce('12345678901234567890'), false); // 20 digits > 19 max
+
+  const msg = buildAgentClaimMessage(
+    NETWORKS.testnet.expectedGenesis,
+    '5DLzcnJjmLLbDkLPfNhShbE2TN1cEAU8hizbJ5tUmeBbdZfd',
+    '1795619961151'
+  );
+  assert.equal(
+    msg,
+    `flop-faucet-agent/v1|${NETWORKS.testnet.expectedGenesis}|5DLzcnJjmLLbDkLPfNhShbE2TN1cEAU8hizbJ5tUmeBbdZfd|1795619961151`
+  );
+
+  const probe = parseFaucetApiProbe(
+    { network: 'testnet', chain: 'FLOP Testnet', genesisHash: NETWORKS.testnet.expectedGenesis },
+    {
+      network: 'testnet',
+      faucet: {
+        status: 'open',
+        pendingGrants: 1234,
+        dailyCap: { limitFlop: '10000000', remainingFlop: '4500000' },
+        agent: { grantFlop: 10, claimPath: '/v1/testnet/agent-claims', rolloverRequiresSpend: true },
+      },
+    },
+    'https://faucet.flop.network/'
+  );
+  assert.equal(probe.detectedTarget, 'testnet');
+  assert.equal(probe.genesisVerified, true);
+  assert.equal(probe.faucetStatus, 'open');
+  assert.equal(probe.agentGrantFlop, 10);
+  assert.equal(probe.pendingGrants, 1234);
 });
 
 test('Validator observation receipt formats public telemetry cleanly', () => {
@@ -141,7 +186,7 @@ test('Local Mission Control dashboard serves HTML, /api/doctor, and /api/verify 
 
 test('CLI binary runs --version, --help, doctor --json, calc --json, and verify --json cleanly', () => {
   const ver = execFileSync(process.execPath, [CLI_PATH, '--version'], { encoding: 'utf8' });
-  assert.match(ver, /flop-kit v1\.0\.0/);
+  assert.match(ver, /flop-kit v1\.1\.0/);
 
   const help = execFileSync(process.execPath, [CLI_PATH, '--help', '--lang', 'tr'], { encoding: 'utf8' });
   assert.match(help, /Kullanım:/);

@@ -8,8 +8,8 @@
  */
 
 export const OFFICIAL_CLI = Object.freeze({
-  cliPackage: '@flop-labs/cli@0.7.0',
-  sdkPackage: '@flop-labs/sdk@0.7.1',
+  cliPackage: '@flop-labs/cli@0.8.3',
+  sdkPackage: '@flop-labs/sdk@0.11.0',
   pythonSdkPackage: 'flop-sdk==0.3.2',
   minNodeMajor: 22,
   validatorNodeMajor: 24,
@@ -29,6 +29,7 @@ export const NETWORKS = Object.freeze({
     expectedChainSpecSha256:
       '485ecb44635609ab261ea3002c3c9fdc7a5dab38caf28a86f654cadf443893be',
     explorer: 'https://testnet.flopscan.io/',
+    faucet: 'https://faucet.flop.network/',
     scoredNoteEn:
       'Opening phase is UNSCORED. Earning begins only at the publicly announced finalized activation block (no backfill).',
     scoredNoteTr:
@@ -44,7 +45,7 @@ export const NETWORKS = Object.freeze({
     expectedGenesis:
       '0x99c172c095340ace980631f9123544c6bebd4839f3437e463533422d8be2d631',
     explorer: 'https://explorer.devnet.flop.network/',
-    faucet: 'https://faucet.flop.network/',
+    faucet: 'https://faucet.devnet.flop.network/',
     gateway: 'https://api.flop.network',
     scoredNoteEn: 'Devnet is strictly for practice and carries ZERO airdrop credit.',
     scoredNoteTr: 'Devnet yalnızca prova içindir ve SIFIR airdrop puanı verir.',
@@ -62,6 +63,8 @@ export const OFFICIAL_LINKS = Object.freeze({
   agentIntegration: 'https://docs.flop.network/docs/agent-integration',
   sdkRefs: 'https://docs.flop.network/docs/sdk-references',
   faucet: 'https://faucet.flop.network/',
+  faucetDevnet: 'https://faucet.devnet.flop.network/',
+  agentLlmsGuide: 'https://flop.network/llms.txt',
   explorerTestnet: 'https://testnet.flopscan.io/',
   explorerDevnet: 'https://explorer.devnet.flop.network/',
   gatewayApi: 'https://api.flop.network/v1',

@@ -115,3 +115,25 @@ Yıldız (Star) bırakıp yer imlerine eklemeyi unutma — puanlı aktivasyon bl
 
 @flop_labs ekosistemine katkı için görüşlerini yoruma bırakabilirsin 👇
 ```
+
+---
+
+## Seçenek C: v1.1.0 Güncelleme Twiti (İmzalı Testnet Faucet Claim Yayında!)
+
+```text
+flop-kit v1.1.0 yayında 🚀
+
+@flop_labs Testnet musluğu (`faucet.flop.network`) açıldı — ama resmi `@flop-labs/cli@0.8.3` bile henüz imzalı Testnet `10 $FLOP` claim komutunu eklemedi (`flop.network/llms.txt` de bunu doğruluyor).
+
+Sıfır bağımlılıklı açık kaynak aracıma resmi `flop-faucet-agent/v1` protokolünü ekledim:
+
+• `node bin/flop-kit.js status --lang tr` -> canlı `/chain` + `/limits` faucet durumu, kuyruk ve günlük kalan kota
+• `node bin/flop-kit.js claim --lang tr` -> genesis doğrulamalı imzalı 10 $FLOP talebi + kuyrukta (grant_pending) kalırsa aynı idempotent nonce'u otomatik tekrar kullanma!
+• `@flop-labs/cli@0.8.3` & `@flop-labs/sdk@0.11.0` güncellendi
+• 0 harici npm paketi, asla seed/private key istemez
+
+GitHub (MIT, TR + EN):
+https://github.com/0xdead2026/flop-kit
+
+Not: Testnet hâlâ puansız (unscored) açılışta ama cüzdanı kurup ilk 10 test $FLOP'u sıraya almak $0 ve en temiz hazırlık 👇
+```

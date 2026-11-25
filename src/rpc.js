@@ -212,14 +212,69 @@ export async function fetchNetworkSnapshot(networkKey = 'testnet') {
   }
 }
 
+export function parseFaucetApiProbe(chainInfo, limitsInfo, safeUrl) {
+  const detectedTarget = String(chainInfo?.network || limitsInfo?.network || 'unknown').toLowerCase();
+  const genesisHash = chainInfo?.genesisHash || null;
+  const expected =
+    detectedTarget === 'testnet'
+      ? NETWORKS.testnet.expectedGenesis
+      : detectedTarget === 'devnet'
+        ? NETWORKS.devnet.expectedGenesis
+        : null;
+  const genesisVerified =
+    Boolean(genesisHash && expected) &&
+    genesisHash.toLowerCase() === expected.toLowerCase();
+
+  const f = limitsInfo?.faucet || null;
+  return {
+    ok: true,
+    statusCode: 200,
+    url: safeUrl,
+    detectedTarget,
+    chain: chainInfo?.chain || null,
+    genesisHash,
+    genesisVerified,
+    faucetStatus: f?.status || null,
+    agentGrantFlop: f?.agent?.grantFlop ?? null,
+    claimPath: f?.agent?.claimPath || null,
+    rolloverRequiresSpend: f?.agent?.rolloverRequiresSpend ?? null,
+    dailyRemainingFlop: f?.dailyCap?.remainingFlop ?? null,
+    dailyLimitFlop: f?.dailyCap?.limitFlop ?? null,
+    pendingGrants: typeof f?.pendingGrants === 'number' ? f.pendingGrants : null,
+    checkedAt: new Date().toISOString(),
+  };
+}
+
 export async function probeFaucetIdentity(timeoutMs = 8000) {
   const safeUrl = assertOfficialUrl(OFFICIAL_LINKS.faucet);
+  const chainUrl = assertOfficialUrl('https://faucet.flop.network/chain');
+  const limitsUrl = assertOfficialUrl('https://faucet.flop.network/limits');
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
+    const [chainRes, limitsRes] = await Promise.all([
+      fetch(chainUrl, {
+        method: 'GET',
+        headers: { 'User-Agent': 'flop-kit/1.1.0', Accept: 'application/json' },
+        signal: controller.signal,
+      }),
+      fetch(limitsUrl, {
+        method: 'GET',
+        headers: { 'User-Agent': 'flop-kit/1.1.0', Accept: 'application/json' },
+        signal: controller.signal,
+      }).catch(() => null),
+    ]);
+
+    if (chainRes.ok) {
+      const chainInfo = await chainRes.json();
+      const limitsInfo = limitsRes && limitsRes.ok ? await limitsRes.json().catch(() => null) : null;
+      return parseFaucetApiProbe(chainInfo, limitsInfo, safeUrl);
+    }
+
+    // Fallback to HTML probe if /chain is unavailable
     const res = await fetch(safeUrl, {
       method: 'GET',
-      headers: { 'User-Agent': 'flop-kit/1.0.0' },
+      headers: { 'User-Agent': 'flop-kit/1.1.0' },
       signal: controller.signal,
     });
     const html = await res.text();
@@ -228,8 +283,7 @@ export async function probeFaucetIdentity(timeoutMs = 8000) {
     const mentionsDevnet =
       lower.includes('devnet faucet') ||
       lower.includes('rpc.devnet.flop.network') ||
-      lower.includes('network - devnet') ||
-      lower.includes('"devnet"');
+      lower.includes('network - devnet');
     const mentionsTestnet =
       lower.includes('testnet faucet') ||
       lower.includes('wss://testnet.flop.network') ||
@@ -256,6 +310,8 @@ export async function probeFaucetIdentity(timeoutMs = 8000) {
       error: err?.message || String(err),
       checkedAt: new Date().toISOString(),
     };
+  } finally {
+    clearTimeout(timer);
   }
 }
 

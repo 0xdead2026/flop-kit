@@ -13,14 +13,16 @@
 
 ## Why `flop-kit` Is Different
 
-Most testnet setup scripts are opaque wrappers with dozens of external dependencies and outdated commands. `flop-kit` is engineered from scratch around the **official Flop Labs documentation** (`docs.flop.network` & `@flop-labs/cli@0.7.0`):
+Most testnet setup scripts are opaque wrappers with dozens of external dependencies and outdated commands. `flop-kit` is engineered from scratch around the **official Flop Labs documentation** (`docs.flop.network`, `flop.network/llms.txt`, and `@flop-labs/cli@0.8.3`):
 
 * **0 External Dependencies:** Pure modern Node.js ESM (`dependencies: {}`). No `npm install`, no Python `venv` headaches, zero supply-chain risk — every line is auditable in minutes.
-* **Dual Interface (TUI + Local Web Dashboard):** Use the keyboard-driven ANSI **Terminal Cockpit** OR launch the built-in **Local Mission Control Web UI** (`127.0.0.1:4141`) with live charts, unlock simulator, and anti-phishing checker.
-* **Live Activation Sniper (`watch`):** The FLOP Testnet launched in an **unscored opening phase** with Devnet-only faucet and 0 initial miners. `flop-kit watch` monitors live Testnet JSON-RPC `specVersion` upgrades and faucet transitions so you know the moment scored earning begins.
+* **Signed Testnet Faucet Claim (`claim` — v1.1.0):** Implements the official `flop-faucet-agent/v1` signed claim flow (`/v1/testnet/agent-claims` for `10 test $FLOP / 24h`) documented in `flop.network/llms.txt` — even before the official CLI adds a Testnet claim subcommand! Verifies both faucet `/chain` and live RPC block 0 genesis before signing, and preserves pending nonces automatically for safe idempotent retries.
+* **Live Faucet `/chain` & `/limits` Telemetry:** Reads real-time Testnet faucet status (`open`), pending queue size, and daily remaining cap.
+* **Dual Interface (TUI + Local Web Dashboard):** Use the keyboard-driven ANSI **Terminal Cockpit** OR launch the built-in **Local Mission Control Web UI** (`127.0.0.1:4141`) with live telemetry, unlock simulator, and anti-phishing checker.
+* **Live Activation Sniper (`watch`):** Monitors live Testnet JSON-RPC `specVersion` upgrades and faucet transitions so you know the moment scored earning begins.
 * **Official-Spec Agent Flow:** Generates official capped `session run` commands (avoiding the broken `flop chat` path) and Hermes + Hosted MCP (`https://mcp.flop.network/mcp`) configs.
 * **Built-In Anti-Phishing Verifier:** Enforces an official root-domain allowlist (`flop.finance`, `flop.network`, `flopscan.io`, `technocore.chat`) and flags fake Discord/Telegram/Reddit/Medium scams instantly.
-* **Instant EN / TR Bilingual Support:** Press `L` anywhere in the cockpit (or click the top toggle in the web dashboard) to switch between English and Turkish.
+* **Instant EN / TR Bilingual CLI:** Press `L` anywhere in the Terminal Cockpit to switch between English and Turkish.
 
 ---
 
@@ -48,7 +50,8 @@ node bin/flop-kit.js dashboard
 | Command | Description |
 | :--- | :--- |
 | `node bin/flop-kit.js` | Launch interactive Terminal Cockpit (`↑/↓`, `1-9`, `[L]` EN/TR, `[Q]` quit) |
-| `node bin/flop-kit.js status [--json]` | Live Testnet & Devnet block height, runtime version, genesis verification & faucet probe |
+| `node bin/flop-kit.js status [--json]` | Live Testnet & Devnet block height, runtime version, genesis verification & live `/chain` + `/limits` faucet telemetry |
+| `node bin/flop-kit.js claim [--check]` | Signed Testnet Agent faucet claim (`10 $FLOP / 24h`) via official `/v1/testnet/agent-claims` with auto idempotent nonce retry |
 | `node bin/flop-kit.js watch [--interval 15]` | Activation Sniper — alerts on runtime upgrade or faucet shift |
 | `node bin/flop-kit.js doctor [--json]` | Audit Node, npm, Docker, CPU, RAM, disk, NVIDIA GPU VRAM & role eligibility |
 | `node bin/flop-kit.js agent` | `$0` Agent Hub: local keystore dir, official `session run` builder, Hermes/MCP, ecosystem paths |

@@ -304,13 +304,13 @@ async function loadTelemetry() {
     const dn = data.devnet;
     const fc = data.faucet;
     const fcBadge = document.getElementById('faucetBadge');
-    fcBadge.className = 'badge ' + (fc.detectedTarget === 'testnet' ? 'b-ok' : 'b-warn');
-    fcBadge.textContent = 'FAUCET: ' + String(fc.detectedTarget).toUpperCase();
+    fcBadge.className = 'badge ' + (fc.detectedTarget === 'testnet' && fc.faucetStatus === 'open' ? 'b-ok' : 'b-warn');
+    fcBadge.textContent = 'FAUCET: ' + String(fc.detectedTarget).toUpperCase() + (fc.faucetStatus ? ' · ' + String(fc.faucetStatus).toUpperCase() : '');
     document.getElementById('devnetBody').innerHTML =
-      kv('Devnet Block', dn.ok ? '#' + fmt(dn.bestBlock) : 'OFFLINE') +
-      kv('Devnet Runtime', dn.ok ? 'v' + dn.specVersion : '—') +
-      kv('Devnet Genesis', dn.ok && dn.genesisVerified ? '<span class="badge b-ok">VERIFIED</span>' : '<span class="badge b-err">CHECK</span>') +
-      kv('Faucet Target', '<span class="badge ' + (fc.detectedTarget === 'testnet' ? 'b-ok' : 'b-warn') + '">' + fc.detectedTarget + '</span>') +
+      kv('Devnet Block', dn.ok ? '#' + fmt(dn.bestBlock) + ' (v' + dn.specVersion + ')' : 'OFFLINE') +
+      kv('Faucet Target', '<span class="badge ' + (fc.detectedTarget === 'testnet' ? 'b-ok' : 'b-warn') + '">' + fc.detectedTarget + '</span>' + (fc.genesisVerified ? ' <span class="badge b-ok">GENESIS OK</span>' : '')) +
+      kv('Agent Grant', fc.agentGrantFlop ? fc.agentGrantFlop + ' FLOP / 24h (' + (fc.claimPath || '/v1/testnet/agent-claims') + ')' : '—') +
+      kv('Pending Queue / Daily Left', (fc.pendingGrants !== null && fc.pendingGrants !== undefined ? fmt(fc.pendingGrants) : '—') + ' / ' + (fc.dailyRemainingFlop ? fmt(fc.dailyRemainingFlop) + ' FLOP' : '—')) +
       kv('Last Checked', new Date(data.checkedAt).toLocaleTimeString());
   } catch (e) {
     document.getElementById('testnetBody').innerHTML = kv('Fetch Error', e.message);
@@ -475,14 +475,15 @@ const COPY = {
   menuTitle: 'MAIN CONTROL MENU',
   items: [
     '[1] ◈  Live Network Status & Genesis Check (Testnet + Devnet)',
-    '[2] ◉  Activation Sniper (Watch Runtime Upgrade & Faucet Switch)',
-    '[3] ✚  System Doctor & Role Eligibility Audit (CPU / RAM / GPU)',
-    '[4] ▶  $0 Agent Hub (Keystore, Official session run, Hermes, Faucet)',
-    '[5] ◆  Validator Prep & Devnet Rehearsal Receipt Generator',
-    '[6] ▲  Miner Hardware Readiness (NVIDIA 16GB+ VRAM & Docker)',
-    '[7] ∑  Airdrop & Unlock Math Simulator (3:1 Agent / Miner / Validator)',
-    '[8] ◎  Official Domain & Anti-Phishing URL Verifier',
-    '[9] ⊞  Launch Local Mission Control Web Dashboard (127.0.0.1)',
+    '[2] ✦  Signed Testnet Faucet Claim (10 $FLOP / 24h · Official Protocol)',
+    '[3] ◉  Activation Sniper (Watch Runtime Upgrade & Faucet Switch)',
+    '[4] ✚  System Doctor & Role Eligibility Audit (CPU / RAM / GPU)',
+    '[5] ▶  $0 Agent Hub (Keystore, Official session run, Hermes, Faucet)',
+    '[6] ◆  Validator Prep & Devnet Rehearsal Receipt Generator',
+    '[7] ▲  Miner Hardware Readiness (NVIDIA 16GB+ VRAM & Docker)',
+    '[8] ∑  Airdrop & Unlock Math Simulator (3:1 Agent / Miner / Validator)',
+    '[9] ◎  Official Domain & Anti-Phishing URL Verifier',
+    '[d] ⊞  Launch Local Mission Control Web Dashboard (127.0.0.1)',
     '[0] ✕  Exit flop-kit'
   ],
   hint: 'Use ↑/↓ arrows (or 1-9) + Enter · [L] Language · [Q] Quit'

@@ -54,14 +54,25 @@ export async function runStatus(lang = 'en', options = {}) {
         : data.faucet.detectedTarget === 'devnet'
           ? badge('DEVNET', 'yellow')
           : badge(String(data.faucet.detectedTarget).toUpperCase(), 'gray')
+    }  ${
+      data.faucet.faucetStatus
+        ? badge(String(data.faucet.faucetStatus).toUpperCase(), data.faucet.faucetStatus === 'open' ? 'green' : 'yellow')
+        : ''
     }  ${c.gray(OFFICIAL_LINKS.faucet)}`,
-    `  ${
-      data.faucet.detectedTarget === 'devnet'
-        ? c.yellow(t(lang, 'status.faucetDevnetWarn'))
-        : data.faucet.detectedTarget === 'testnet'
-          ? c.brightGreen(t(lang, 'status.faucetTestnetReady'))
-          : c.gray(t(lang, 'status.faucetUnknown'))
-    }`,
+    ...(data.faucet.detectedTarget === 'testnet' && data.faucet.agentGrantFlop
+      ? [
+          `  Agent Grant: ${c.brightGreen(`${data.faucet.agentGrantFlop} FLOP / 24h`)} (${c.cyan(data.faucet.claimPath || '/v1/testnet/agent-claims')})  |  Queue: ${c.yellow(formatNum(data.faucet.pendingGrants))}  |  Daily Left: ${c.white(formatNum(data.faucet.dailyRemainingFlop) + ' FLOP')}`,
+          `  ${c.gray(lang === 'tr' ? 'İmzalı talep için: node bin/flop-kit.js claim --lang tr' : 'Submit signed claim: node bin/flop-kit.js claim')}`,
+        ]
+      : [
+          `  ${
+            data.faucet.detectedTarget === 'devnet'
+              ? c.yellow(t(lang, 'status.faucetDevnetWarn'))
+              : data.faucet.detectedTarget === 'testnet'
+                ? c.brightGreen(t(lang, 'status.faucetTestnetReady'))
+                : c.gray(t(lang, 'status.faucetUnknown'))
+          }`,
+        ]),
     '',
     c.brightYellow(`⚠ ${t(lang, 'status.scoredWarning')}`),
     c.gray(`  Explorer: ${OFFICIAL_LINKS.explorerTestnet}  |  Docs: ${OFFICIAL_LINKS.testnetDocs}`),

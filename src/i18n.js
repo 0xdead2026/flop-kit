@@ -19,6 +19,7 @@ export const MESSAGES = Object.freeze({
     ],
     menu: {
       status: 'Live Network Status & Genesis Check (Testnet + Devnet)',
+      claim: 'Signed Testnet Faucet Claim (10 $FLOP / 24h · Official Protocol)',
       watch: 'Activation Sniper (Watch Runtime Upgrade & Faucet Switch)',
       doctor: 'System Doctor & Role Eligibility Audit (CPU / RAM / GPU)',
       agent: '$0 Agent Hub (Keystore, Official session run, Hermes, Faucet)',
@@ -77,7 +78,7 @@ export const MESSAGES = Object.freeze({
       warningUnscored:
         'Testnet is in its unscored opening phase with 0 active miners. Practice safely on Devnet today, then switch to --network testnet once the scored activation block & faucet open.',
       actions: [
-        '1. Check official @flop-labs/cli@0.7.0 availability',
+        '1. Check official @flop-labs/cli@0.8.3 availability',
         '2. Create / inspect dedicated local keystore directory (~/.flop-kit/keys)',
         '3. Generate official `session run` command (capped test FLOP spend)',
         '4. View Hermes Agent + Hosted MCP (https://mcp.flop.network/mcp) setup',
@@ -137,6 +138,7 @@ export const MESSAGES = Object.freeze({
     ],
     menu: {
       status: 'Canlı Ağ Durumu & Genesis Doğrulama (Testnet + Devnet)',
+      claim: 'İmzalı Testnet Faucet Talebi (10 $FLOP / 24s · Resmi Protokol)',
       watch: 'Aktivasyon Takipçisi (Runtime Yükseltme & Faucet Geçiş Alarmı)',
       doctor: 'Sistem Doktoru & Rol Uygunluk Analizi (CPU / RAM / GPU)',
       agent: '$0 Agent Merkezi (Keystore, Resmi session run, Hermes, Faucet)',
@@ -195,7 +197,7 @@ export const MESSAGES = Object.freeze({
       warningUnscored:
         'Testnet şu an puansız açılış aşamasında ve aktif miner sayısı 0. Bugün Devnet üzerinde ücretsiz prova yapabilir, aktivasyon bloğu ve Testnet musluğu açıldığında --network testnet ile geçebilirsin.',
       actions: [
-        '1. Resmi @flop-labs/cli@0.7.0 erişilebilirliğini kontrol et',
+        '1. Resmi @flop-labs/cli@0.8.3 erişilebilirliğini kontrol et',
         '2. Ayrı yerel keystore klasörü oluştur / incele (~/.flop-kit/keys)',
         '3. Resmi `session run` (bütçe limitli harcama) komutu üret',
         '4. Hermes Agent + Hosted MCP (https://mcp.flop.network/mcp) kurulum bilgisi',

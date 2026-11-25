@@ -13,14 +13,16 @@
 
 ## `flop-kit` Neden Farklı?
 
-Çoğu testnet aracı onlarca harici kütüphane kuran, güncel olmayan komutlar kullanan basit sarmalayıcılardır. `flop-kit`, tamamen **resmi Flop Labs dökümanları** (`docs.flop.network` ve `@flop-labs/cli@0.7.0`) temel alınarak sıfırdan geliştirildi:
+Çoğu testnet aracı onlarca harici kütüphane kuran, güncel olmayan komutlar kullanan basit sarmalayıcılardır. `flop-kit`, tamamen **resmi Flop Labs dökümanları** (`docs.flop.network`, `flop.network/llms.txt` ve `@flop-labs/cli@0.8.3`) temel alınarak sıfırdan geliştirildi:
 
 * **0 Harici Bağımlılık:** Saf modern Node.js ESM (`dependencies: {}`). `npm install` yok, Python `venv` hatası yok, tedarik zinciri riski yok — kodun tamamı dakikalar içinde denetlenebilir.
+* **İmzalı Testnet Faucet Talebi (`claim` — v1.1.0):** Resmi `flop.network/llms.txt` dokümanındaki `flop-faucet-agent/v1` imzalı talep akışını (`/v1/testnet/agent-claims` ile günlük `10 test $FLOP`) uygular — resmi CLI'a henüz gelmeden önce! İmzalamadan önce faucet `/chain` ile canlı RPC blok 0 genesis eşleşmesini doğrular ve kuyrukta kalırsa idempotent `nonce` değerini otomatik saklar.
+* **Canlı Faucet `/chain` & `/limits` Telemetrisi:** Testnet faucet durumunu (`open`), bekleyen kuyruk sayısını ve günlük kalan kotayı anlık gösterir.
 * **Çift Arayüz (Terminal Kokpiti + Yerel Web Paneli):** İster ok tuşlarıyla yönetilen renkli **Terminal Kokpitini**, ister tek komutla açılan **Yerel Mission Control Web Panelini** (`127.0.0.1:4141`) kullan.
-* **Canlı Aktivasyon Takipçisi (`watch`):** FLOP Testnet açılışta **puansız (unscored)** fazda, 0 miner ve Devnet faucet ile başladı. `flop-kit watch` canlı Testnet JSON-RPC `specVersion` değişimlerini ve faucet geçişini izleyip aktivasyon anında alarm verir.
+* **Canlı Aktivasyon Takipçisi (`watch`):** Canlı Testnet JSON-RPC `specVersion` değişimlerini ve faucet geçişini izleyip aktivasyon anında alarm verir.
 * **Resmi Dökümana %100 Uyumlu Agent Akışı:** Hatalı `flop chat` yerine resmi bütçe limitli `session run` komutları ve harici ücretli API anahtarı gerektirmeyen Hermes + Hosted MCP (`https://mcp.flop.network/mcp`) kurulum şablonları üretir.
 * **Dahili Phishing / Oltalama Doğrulayıcı:** Resmi domain beyaz listesini (`flop.finance`, `flop.network`, `flopscan.io`, `technocore.chat`) kontrol eder ve sahte Discord/Telegram/Reddit/Medium gruplarını anında yakalar.
-* **Anlık TR / EN Dil Değişimi:** Terminal kokpitinde `L` tuşuna basarak (veya Web Panelinde üstteki butonla) anında Türkçe ↔ İngilizce geçiş yap.
+* **Anlık TR / EN Dil Değişimi:** Terminal kokpitinde `L` tuşuna basarak anında Türkçe ↔ İngilizce geçiş yap.
 
 ---
 
@@ -48,7 +50,8 @@ node bin/flop-kit.js dashboard --lang tr
 | Komut | Açıklama |
 | :--- | :--- |
 | `node bin/flop-kit.js --lang tr` | Etkileşimli Terminal Kokpitini aç (`↑/↓`, `1-9`, `[L]` TR/EN, `[Q]` çıkış) |
-| `node bin/flop-kit.js status --lang tr` | Canlı Testnet & Devnet blok yüksekliği, runtime sürümü, genesis doğrulama ve faucet kontrolü |
+| `node bin/flop-kit.js status --lang tr` | Canlı Testnet & Devnet blok yüksekliği, runtime sürümü, genesis doğrulama ve canlı `/chain` + `/limits` faucet telemetrisi |
+| `node bin/flop-kit.js claim --lang tr` | Resmi `/v1/testnet/agent-claims` ile imzalı Testnet 10 `$FLOP` Agent faucet talebi (`--check` ile durum sorgulama) |
 | `node bin/flop-kit.js watch --lang tr` | Aktivasyon Takipçisi — runtime yükseltmesi veya faucet değişiminde alarm verir |
 | `node bin/flop-kit.js doctor --lang tr` | Node, npm, Docker, CPU, RAM, disk, NVIDIA GPU VRAM ve rol uygunluk analizi |
 | `node bin/flop-kit.js agent --lang tr` | `\$0` Agent Merkezi: yerel keystore, resmi `session run` oluşturucu, Hermes/MCP, ekosistem yolları |
