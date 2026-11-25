@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
+import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -16,6 +18,13 @@ import {
   validateClaimNonce,
 } from '../src/modules/claim.js';
 import { createDashboardServer } from '../src/modules/dashboard.js';
+import {
+  encodeBase58Btc,
+  generateEncryptedDid,
+  inspectLocalDid,
+  publicKeyBytesToDidKey,
+  verifyEncryptedDidPassphrase,
+} from '../src/modules/did.js';
 import { formatObservationReceipt } from '../src/modules/validator.js';
 import { classifyUrl } from '../src/modules/verify.js';
 import {
@@ -89,12 +98,12 @@ test('Signed Testnet agent claim builder and faucet API probe parser follow offi
 
   const msg = buildAgentClaimMessage(
     NETWORKS.testnet.expectedGenesis,
-    '5DLzcnJjmLLbDkLPfNhShbE2TN1cEAU8hizbJ5tUmeBbdZfd',
+    '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY',
     '1795619961151'
   );
   assert.equal(
     msg,
-    `flop-faucet-agent/v1|${NETWORKS.testnet.expectedGenesis}|5DLzcnJjmLLbDkLPfNhShbE2TN1cEAU8hizbJ5tUmeBbdZfd|1795619961151`
+    `flop-faucet-agent/v1|${NETWORKS.testnet.expectedGenesis}|5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY|1795619961151`
   );
 
   const probe = parseFaucetApiProbe(
@@ -184,9 +193,33 @@ test('Local Mission Control dashboard serves HTML, /api/doctor, and /api/verify 
   }
 });
 
+test('Zero-dependency W3C Ed25519 did:key generator creates encrypted PEM and verifies round-trip', () => {
+  assert.equal(encodeBase58Btc(Buffer.from([0, 0, 1])), '112');
+  const zeroDid = publicKeyBytesToDidKey(Buffer.alloc(32, 0));
+  assert.ok(zeroDid.startsWith('did:key:z6Mk'));
+
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'flop-kit-did-'));
+  try {
+    const created = generateEncryptedDid({
+      password: 'TestStrongPassword123',
+      baseDir: tmpDir,
+    });
+    assert.match(created.did, /^did:key:z6Mk[1-9A-HJ-NP-Za-km-z]{44,46}$/);
+    const inspected = inspectLocalDid(tmpDir);
+    assert.equal(inspected.exists, true);
+    assert.equal(inspected.did, created.did);
+
+    const check = verifyEncryptedDidPassphrase(created.pemPath, 'TestStrongPassword123');
+    assert.equal(check.valid, true);
+    assert.equal(check.did, created.did);
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+});
+
 test('CLI binary runs --version, --help, doctor --json, calc --json, and verify --json cleanly', () => {
   const ver = execFileSync(process.execPath, [CLI_PATH, '--version'], { encoding: 'utf8' });
-  assert.match(ver, /flop-kit v1\.1\.0/);
+  assert.match(ver, /flop-kit v1\.2\.0/);
 
   const help = execFileSync(process.execPath, [CLI_PATH, '--help', '--lang', 'tr'], { encoding: 'utf8' });
   assert.match(help, /Kullanım:/);

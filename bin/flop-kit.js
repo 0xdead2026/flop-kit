@@ -10,6 +10,7 @@ import { runAgentHub } from '../src/modules/agent.js';
 import { runCalculator } from '../src/modules/calculator.js';
 import { runClaimModule } from '../src/modules/claim.js';
 import { runDashboard } from '../src/modules/dashboard.js';
+import { runDidModule } from '../src/modules/did.js';
 import { runDoctor } from '../src/modules/doctor.js';
 import { runMinerModule } from '../src/modules/miner.js';
 import { runStatus } from '../src/modules/status.js';
@@ -28,6 +29,8 @@ export function parseArgs(argv) {
     once: false,
     check: false,
     newNonce: false,
+    create: false,
+    force: false,
     interval: 15,
     port: 4141,
     role: null,
@@ -46,6 +49,8 @@ export function parseArgs(argv) {
     else if (a === '--once') flags.once = true;
     else if (a === '--check') flags.check = true;
     else if (a === '--new-nonce') flags.newNonce = true;
+    else if (a === '--create') flags.create = true;
+    else if (a === '--force') flags.force = true;
     else if (a === '--lang' || a === '-l') flags.lang = args[++i];
     else if (a.startsWith('--lang=')) flags.lang = a.split('=')[1];
     else if (a === '--interval') flags.interval = Number(args[++i]) || 15;
@@ -78,6 +83,7 @@ function printHelp(lang) {
     `  ${c.cyan('(no args)')}     ${isTr ? 'Etkileşimli Terminal Kokpitini aç (↑/↓ + EN/TR)' : 'Launch Interactive Terminal Cockpit (↑/↓ + EN/TR)'}`,
     `  ${c.cyan('status')}        ${isTr ? 'Canlı Testnet/Devnet blok, genesis ve faucet kontrolü' : 'Live Testnet/Devnet block, genesis, and faucet check'}`,
     `  ${c.cyan('claim')}         ${isTr ? 'İmzalı Testnet 10 $FLOP Agent faucet talebi (--check | --keystore)' : 'Signed Testnet 10 $FLOP Agent faucet claim (--check | --keystore)'}`,
+    `  ${c.cyan('did')}           ${isTr ? 'Şifreli Ed25519 did:key kimliği oluştur / incele (--create | --json)' : 'Create / inspect encrypted Ed25519 did:key identity (--create | --json)'}`,
     `  ${c.cyan('watch')}         ${isTr ? 'Aktivasyon takipçisi (runtime yükseltme & faucet alarmı)' : 'Activation sniper (watch runtime upgrade & faucet switch)'}`,
     `  ${c.cyan('doctor')}        ${isTr ? 'Sistem, Node, Docker, GPU ve rol uygunluk analizi' : 'System, Node, Docker, GPU & role eligibility audit'}`,
     `  ${c.cyan('agent')}         ${isTr ? '$0 Agent merkezi (resmi session run, keystore, Hermes)' : '$0 Agent hub (official session run, keystore, Hermes)'}`,
@@ -126,6 +132,13 @@ async function main() {
       nonce: flags.nonce,
       newNonce: flags.newNonce,
       check: flags.check,
+      json: flags.json,
+    });
+  } else if (command === 'did') {
+    await runDidModule(lang, {
+      create: flags.create,
+      force: flags.force,
+      passwordEnv: flags.passwordEnv,
       json: flags.json,
     });
   } else if (command === 'watch') {

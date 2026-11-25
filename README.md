@@ -52,6 +52,7 @@ node bin/flop-kit.js dashboard
 | `node bin/flop-kit.js` | Launch interactive Terminal Cockpit (`↑/↓`, `1-9`, `[L]` EN/TR, `[Q]` quit) |
 | `node bin/flop-kit.js status [--json]` | Live Testnet & Devnet block height, runtime version, genesis verification & live `/chain` + `/limits` faucet telemetry |
 | `node bin/flop-kit.js claim [--check]` | Signed Testnet Agent faucet claim (`10 $FLOP / 24h`) via official `/v1/testnet/agent-claims` with auto idempotent nonce retry |
+| `node bin/flop-kit.js did [--create]` | Generate or inspect an encrypted W3C Ed25519 `did:key:z6Mk...` identity (0 dependencies, saved outside Git) |
 | `node bin/flop-kit.js watch [--interval 15]` | Activation Sniper — alerts on runtime upgrade or faucet shift |
 | `node bin/flop-kit.js doctor [--json]` | Audit Node, npm, Docker, CPU, RAM, disk, NVIDIA GPU VRAM & role eligibility |
 | `node bin/flop-kit.js agent` | `$0` Agent Hub: local keystore dir, official `session run` builder, Hermes/MCP, ecosystem paths |

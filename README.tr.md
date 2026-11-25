@@ -52,6 +52,7 @@ node bin/flop-kit.js dashboard --lang tr
 | `node bin/flop-kit.js --lang tr` | Etkileşimli Terminal Kokpitini aç (`↑/↓`, `1-9`, `[L]` TR/EN, `[Q]` çıkış) |
 | `node bin/flop-kit.js status --lang tr` | Canlı Testnet & Devnet blok yüksekliği, runtime sürümü, genesis doğrulama ve canlı `/chain` + `/limits` faucet telemetrisi |
 | `node bin/flop-kit.js claim --lang tr` | Resmi `/v1/testnet/agent-claims` ile imzalı Testnet 10 `$FLOP` Agent faucet talebi (`--check` ile durum sorgulama) |
+| `node bin/flop-kit.js did --create --lang tr` | Sıfır bağımlılıkla şifreli W3C Ed25519 `did:key:z6Mk...` kimliği oluştur / incele (Git reposu dışında saklanır) |
 | `node bin/flop-kit.js watch --lang tr` | Aktivasyon Takipçisi — runtime yükseltmesi veya faucet değişiminde alarm verir |
 | `node bin/flop-kit.js doctor --lang tr` | Node, npm, Docker, CPU, RAM, disk, NVIDIA GPU VRAM ve rol uygunluk analizi |
 | `node bin/flop-kit.js agent --lang tr` | `\$0` Agent Merkezi: yerel keystore, resmi `session run` oluşturucu, Hermes/MCP, ekosistem yolları |

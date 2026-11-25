@@ -20,6 +20,7 @@ export const MESSAGES = Object.freeze({
     menu: {
       status: 'Live Network Status & Genesis Check (Testnet + Devnet)',
       claim: 'Signed Testnet Faucet Claim (10 $FLOP / 24h · Official Protocol)',
+      did: 'Local Agent DID Identity (Encrypted Ed25519 did:key · 0 Deps)',
       watch: 'Activation Sniper (Watch Runtime Upgrade & Faucet Switch)',
       doctor: 'System Doctor & Role Eligibility Audit (CPU / RAM / GPU)',
       agent: '$0 Agent Hub (Keystore, Official session run, Hermes, Faucet)',
@@ -139,6 +140,7 @@ export const MESSAGES = Object.freeze({
     menu: {
       status: 'Canlı Ağ Durumu & Genesis Doğrulama (Testnet + Devnet)',
       claim: 'İmzalı Testnet Faucet Talebi (10 $FLOP / 24s · Resmi Protokol)',
+      did: 'Yerel Agent DID Kimliği (Şifreli Ed25519 did:key · 0 Bağımlılık)',
       watch: 'Aktivasyon Takipçisi (Runtime Yükseltme & Faucet Geçiş Alarmı)',
       doctor: 'Sistem Doktoru & Rol Uygunluk Analizi (CPU / RAM / GPU)',
       agent: '$0 Agent Merkezi (Keystore, Resmi session run, Hermes, Faucet)',

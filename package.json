@@ -1,6 +1,6 @@
 {
   "name": "flop-kit",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Zero-dependency, bilingual (EN/TR) interactive CLI cockpit, activation watcher, and local Mission Control dashboard for the FLOP Network Testnet.",
   "type": "module",
   "main": "bin/flop-kit.js",
@@ -14,6 +14,7 @@
     "start": "node bin/flop-kit.js",
     "status": "node bin/flop-kit.js status",
     "claim": "node bin/flop-kit.js claim",
+    "did": "node bin/flop-kit.js did",
     "watch": "node bin/flop-kit.js watch",
     "doctor": "node bin/flop-kit.js doctor",
     "dashboard": "node bin/flop-kit.js dashboard",

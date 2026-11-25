@@ -11,6 +11,7 @@ import { runAgentHub } from './modules/agent.js';
 import { runCalculator } from './modules/calculator.js';
 import { runClaimModule } from './modules/claim.js';
 import { runDashboard } from './modules/dashboard.js';
+import { runDidModule } from './modules/did.js';
 import { runDoctor } from './modules/doctor.js';
 import { runMinerModule } from './modules/miner.js';
 import { runStatus } from './modules/status.js';
@@ -30,13 +31,14 @@ const LOGO = [
 const MENU_KEYS = [
   { id: 'status', icon: '◈', key: '1' },
   { id: 'claim', icon: '✦', key: '2' },
-  { id: 'watch', icon: '◉', key: '3' },
-  { id: 'doctor', icon: '✚', key: '4' },
-  { id: 'agent', icon: '▶', key: '5' },
-  { id: 'validator', icon: '◆', key: '6' },
-  { id: 'miner', icon: '▲', key: '7' },
-  { id: 'calc', icon: '∑', key: '8' },
-  { id: 'verify', icon: '◎', key: '9' },
+  { id: 'did', icon: '⚷', key: '3' },
+  { id: 'watch', icon: '◉', key: '4' },
+  { id: 'doctor', icon: '✚', key: '5' },
+  { id: 'agent', icon: '▶', key: '6' },
+  { id: 'validator', icon: '◆', key: '7' },
+  { id: 'miner', icon: '▲', key: '8' },
+  { id: 'calc', icon: '∑', key: '9' },
+  { id: 'verify', icon: '◎', key: 'v' },
   { id: 'dashboard', icon: '⊞', key: 'd' },
   { id: 'exit', icon: '✕', key: '0' },
 ];
@@ -217,6 +219,8 @@ export async function runInteractiveTui(initialLang = 'en') {
         telemetry = await runStatus(lang);
       } else if (picked.id === 'claim') {
         await runClaimModule(lang);
+      } else if (picked.id === 'did') {
+        await runDidModule(lang);
       } else if (picked.id === 'watch') {
         await runWatch(lang);
       } else if (picked.id === 'doctor') {
