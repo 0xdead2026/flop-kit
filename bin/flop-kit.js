@@ -7,6 +7,7 @@ import { c, drawBox } from '../src/ansi.js';
 import { BRANDING } from '../src/branding.js';
 import { detectDefaultLang } from '../src/i18n.js';
 import { runAgentHub } from '../src/modules/agent.js';
+import { runAutopilot } from '../src/modules/autopilot.js';
 import { runCalculator } from '../src/modules/calculator.js';
 import { runClaimModule } from '../src/modules/claim.js';
 import { runDashboard } from '../src/modules/dashboard.js';
@@ -85,6 +86,7 @@ function printHelp(lang) {
     `  ${c.cyan('claim')}         ${isTr ? 'İmzalı Testnet 10 $FLOP Agent faucet talebi (--check | --keystore)' : 'Signed Testnet 10 $FLOP Agent faucet claim (--check | --keystore)'}`,
     `  ${c.cyan('did')}           ${isTr ? 'Şifreli Ed25519 did:key kimliği oluştur / incele (--create | --json)' : 'Create / inspect encrypted Ed25519 did:key identity (--create | --json)'}`,
     `  ${c.cyan('watch')}         ${isTr ? 'Aktivasyon takipçisi (runtime yükseltme & faucet alarmı)' : 'Activation sniper (watch runtime upgrade & faucet switch)'}`,
+    `  ${c.cyan('autopilot')}     ${isTr ? '7/24 VPS servisi: faucet hazır olunca otomatik 10 $FLOP talep + aktivasyon takibi' : '24/7 VPS daemon: auto-claim 10 $FLOP when faucet is ready + watch activation'}`,
     `  ${c.cyan('doctor')}        ${isTr ? 'Sistem, Node, Docker, GPU ve rol uygunluk analizi' : 'System, Node, Docker, GPU & role eligibility audit'}`,
     `  ${c.cyan('agent')}         ${isTr ? '$0 Agent merkezi (resmi session run, keystore, Hermes)' : '$0 Agent hub (official session run, keystore, Hermes)'}`,
     `  ${c.cyan('validator')}     ${isTr ? 'Validator hazırlık & GitHub gözlem kanıtı şablonu' : 'Validator prep & GitHub observation receipt generator'}`,
@@ -143,6 +145,13 @@ async function main() {
     });
   } else if (command === 'watch') {
     await runWatch(lang, { interval: flags.interval, once: flags.once });
+  } else if (command === 'autopilot') {
+    await runAutopilot(lang, {
+      interval: flags.interval === 15 ? 600 : flags.interval,
+      once: flags.once,
+      keystore: flags.keystore,
+      passwordEnv: flags.passwordEnv,
+    });
   } else if (command === 'doctor') {
     runDoctor(lang, { json: flags.json });
   } else if (command === 'agent') {

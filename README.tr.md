@@ -54,6 +54,7 @@ node bin/flop-kit.js dashboard --lang tr
 | `node bin/flop-kit.js claim --lang tr` | Resmi `/v1/testnet/agent-claims` ile imzalı Testnet 10 `$FLOP` Agent faucet talebi (`--check` ile durum sorgulama) |
 | `node bin/flop-kit.js did --create --lang tr` | Sıfır bağımlılıkla şifreli W3C Ed25519 `did:key:z6Mk...` kimliği oluştur / incele (Git reposu dışında saklanır) |
 | `node bin/flop-kit.js watch --lang tr` | Aktivasyon Takipçisi — runtime yükseltmesi veya faucet değişiminde alarm verir |
+| `node bin/flop-kit.js autopilot [--interval 600]` | 7/24 VPS servisi (~40MB RAM) — faucet `ready: true` olunca otomatik 10 `$FLOP` talep eder + aktivasyon izler |
 | `node bin/flop-kit.js doctor --lang tr` | Node, npm, Docker, CPU, RAM, disk, NVIDIA GPU VRAM ve rol uygunluk analizi |
 | `node bin/flop-kit.js agent --lang tr` | `\$0` Agent Merkezi: yerel keystore, resmi `session run` oluşturucu, Hermes/MCP, ekosistem yolları |
 | `node bin/flop-kit.js validator --lang tr` | Validatör 3 adımlı kontrol listesi, genesis doğrulama ve GitHub `operator-application.yml` kanıt şablonu |
@@ -84,6 +85,18 @@ node bin/flop-kit.js dashboard --lang tr
 * **Katı resmi domain beyaz listesi:** `src/rpc.js` yalnızca resmi Flop Labs domainlerine (`flop.finance`, `flop.network`, `flopscan.io`, `technocore.chat`) HTTPS/WSS isteği gönderir.
 * **Sadece yerel web paneli:** Dashboard yalnızca `127.0.0.1` üzerinde çalışır, dış ağa açılmaz.
 * **Sahte kanal uyarısı:** Flop Labs'in resmi **Discord, Telegram, Reddit veya Medium kanalı YOKTUR** ([flop.finance/official/](https://flop.finance/official/)).
+
+---
+
+## 7/24 VPS Kurulumu (Ubuntu / Debian `systemd`)
+
+1 vCPU / 1 GB RAM'li herhangi bir Ubuntu VPS üzerinde (~40 MB RAM tüketimiyle) tek komutla 7/24 çalıştır:
+
+```bash
+git clone https://github.com/0xdead2026/flop-kit.git /opt/flop-kit
+sudo bash /opt/flop-kit/scripts/install-systemd.sh
+journalctl -u flop-kit-autopilot -f
+```
 
 ---
 

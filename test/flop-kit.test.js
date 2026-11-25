@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { NETWORKS } from '../src/constants.js';
 import { MESSAGES, t } from '../src/i18n.js';
 import { buildOfficialSessionCommand } from '../src/modules/agent.js';
+import { shouldAttemptAutoClaim } from '../src/modules/autopilot.js';
 import {
   calculateAgentUnlock,
   calculateMinerUnlock,
@@ -217,9 +218,42 @@ test('Zero-dependency W3C Ed25519 did:key generator creates encrypted PEM and ve
   }
 });
 
+test('Autopilot claim gate enforces health readiness, verified testnet, and 24h cooldown', () => {
+  const readyHealth = { ok: true, ready: true, statusCode: 200, status: 'ok' };
+  const openFaucet = { ok: true, detectedTarget: 'testnet', genesisVerified: true, faucetStatus: 'open' };
+
+  assert.equal(
+    shouldAttemptAutoClaim({ health: { ok: false, ready: false, statusCode: 503, status: 'degraded' }, faucet: openFaucet, savedState: null }).attempt,
+    false
+  );
+  assert.equal(
+    shouldAttemptAutoClaim({ health: readyHealth, faucet: openFaucet, savedState: null }).attempt,
+    true
+  );
+  const now = Date.parse('2026-11-26T00:00:00Z');
+  assert.equal(
+    shouldAttemptAutoClaim({
+      health: readyHealth,
+      faucet: openFaucet,
+      savedState: { txHash: '0x123', status: 'submitted', updatedAt: '2026-11-25T20:00:00Z' },
+      nowMs: now,
+    }).attempt,
+    false
+  );
+  assert.equal(
+    shouldAttemptAutoClaim({
+      health: readyHealth,
+      faucet: openFaucet,
+      savedState: { txHash: '0x123', status: 'submitted', updatedAt: '2026-11-24T20:00:00Z' },
+      nowMs: now,
+    }).attempt,
+    true
+  );
+});
+
 test('CLI binary runs --version, --help, doctor --json, calc --json, and verify --json cleanly', () => {
   const ver = execFileSync(process.execPath, [CLI_PATH, '--version'], { encoding: 'utf8' });
-  assert.match(ver, /flop-kit v1\.2\.0/);
+  assert.match(ver, /flop-kit v1\.3\.0/);
 
   const help = execFileSync(process.execPath, [CLI_PATH, '--help', '--lang', 'tr'], { encoding: 'utf8' });
   assert.match(help, /Kullanım:/);

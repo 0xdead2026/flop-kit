@@ -54,6 +54,7 @@ node bin/flop-kit.js dashboard
 | `node bin/flop-kit.js claim [--check]` | Signed Testnet Agent faucet claim (`10 $FLOP / 24h`) via official `/v1/testnet/agent-claims` with auto idempotent nonce retry |
 | `node bin/flop-kit.js did [--create]` | Generate or inspect an encrypted W3C Ed25519 `did:key:z6Mk...` identity (0 dependencies, saved outside Git) |
 | `node bin/flop-kit.js watch [--interval 15]` | Activation Sniper — alerts on runtime upgrade or faucet shift |
+| `node bin/flop-kit.js autopilot [--interval 600]` | 24/7 VPS daemon (~40MB RAM) — monitors health/activation and auto-claims 10 `$FLOP` when faucet is ready |
 | `node bin/flop-kit.js doctor [--json]` | Audit Node, npm, Docker, CPU, RAM, disk, NVIDIA GPU VRAM & role eligibility |
 | `node bin/flop-kit.js agent` | `$0` Agent Hub: local keystore dir, official `session run` builder, Hermes/MCP, ecosystem paths |
 | `node bin/flop-kit.js validator` | Validator 3-step checklist, Testnet genesis check & GitHub `operator-application.yml` receipt generator |
@@ -86,6 +87,18 @@ Use `--lang tr` or `--lang en` with any command to set the output language.
 * **Strict network allowlist:** `src/rpc.js` refuses any non-HTTPS/WSS URL or any host outside official Flop Labs root domains (`flop.finance`, `flop.network`, `flopscan.io`, `technocore.chat`).
 * **Localhost-only dashboard:** The web UI binds strictly to `127.0.0.1` and never exposes ports to the public network.
 * **Official channels only:** Flop Labs officially has **NO Discord, Telegram, Reddit, or Medium** ([flop.finance/official/](https://flop.finance/official/)).
+
+---
+
+## 24/7 VPS Deployment (Ubuntu / Debian `systemd`)
+
+Run `flop-kit autopilot` 24/7 on a minimal 1 vCPU / 1 GB RAM Ubuntu VPS (~40 MB RAM footprint):
+
+```bash
+git clone https://github.com/0xdead2026/flop-kit.git /opt/flop-kit
+sudo bash /opt/flop-kit/scripts/install-systemd.sh
+journalctl -u flop-kit-autopilot -f
+```
 
 ---
 
