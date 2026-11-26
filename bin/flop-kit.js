@@ -32,6 +32,7 @@ export function parseArgs(argv) {
     newNonce: false,
     create: false,
     force: false,
+    autoSpend: false,
     interval: 15,
     port: 4141,
     role: null,
@@ -39,6 +40,8 @@ export function parseArgs(argv) {
     keystore: null,
     passwordEnv: null,
     nonce: null,
+    spendMaxFlop: 0.01,
+    spendIntervalHours: 6,
   };
   const positional = [];
 
@@ -52,6 +55,7 @@ export function parseArgs(argv) {
     else if (a === '--new-nonce') flags.newNonce = true;
     else if (a === '--create') flags.create = true;
     else if (a === '--force') flags.force = true;
+    else if (a === '--auto-spend') flags.autoSpend = true;
     else if (a === '--lang' || a === '-l') flags.lang = args[++i];
     else if (a.startsWith('--lang=')) flags.lang = a.split('=')[1];
     else if (a === '--interval') flags.interval = Number(args[++i]) || 15;
@@ -61,6 +65,8 @@ export function parseArgs(argv) {
     else if (a === '--keystore') flags.keystore = args[++i];
     else if (a === '--password-env') flags.passwordEnv = args[++i];
     else if (a === '--nonce') flags.nonce = args[++i];
+    else if (a === '--spend-max-flop') flags.spendMaxFlop = Number(args[++i]) || 0.01;
+    else if (a === '--spend-interval-hours') flags.spendIntervalHours = Number(args[++i]) || 6;
     else positional.push(a);
   }
 
@@ -86,7 +92,7 @@ function printHelp(lang) {
     `  ${c.cyan('claim')}         ${isTr ? 'İmzalı Testnet 10 $FLOP Agent faucet talebi (--check | --keystore)' : 'Signed Testnet 10 $FLOP Agent faucet claim (--check | --keystore)'}`,
     `  ${c.cyan('did')}           ${isTr ? 'Şifreli Ed25519 did:key kimliği oluştur / incele (--create | --json)' : 'Create / inspect encrypted Ed25519 did:key identity (--create | --json)'}`,
     `  ${c.cyan('watch')}         ${isTr ? 'Aktivasyon takipçisi (runtime yükseltme & faucet alarmı)' : 'Activation sniper (watch runtime upgrade & faucet switch)'}`,
-    `  ${c.cyan('autopilot')}     ${isTr ? '7/24 VPS servisi: faucet hazır olunca otomatik 10 $FLOP talep + aktivasyon takibi' : '24/7 VPS daemon: auto-claim 10 $FLOP when faucet is ready + watch activation'}`,
+    `  ${c.cyan('autopilot')}     ${isTr ? '7/24 VPS servisi: günlük 10 $FLOP claim + açık olunca 0.01 $FLOP auto-spend' : '24/7 VPS daemon: daily 10 $FLOP claim + bounded 0.01 $FLOP auto-spend'}`,
     `  ${c.cyan('doctor')}        ${isTr ? 'Sistem, Node, Docker, GPU ve rol uygunluk analizi' : 'System, Node, Docker, GPU & role eligibility audit'}`,
     `  ${c.cyan('agent')}         ${isTr ? '$0 Agent merkezi (resmi session run, keystore, Hermes)' : '$0 Agent hub (official session run, keystore, Hermes)'}`,
     `  ${c.cyan('validator')}     ${isTr ? 'Validator hazırlık & GitHub gözlem kanıtı şablonu' : 'Validator prep & GitHub observation receipt generator'}`,
@@ -96,12 +102,15 @@ function printHelp(lang) {
     `  ${c.cyan('dashboard')}     ${isTr ? 'Yerel Mission Control Web Panelini başlat (127.0.0.1:4141)' : 'Start Local Mission Control Web Dashboard (127.0.0.1:4141)'}`,
     '',
     c.bold(isTr ? 'Seçenekler:' : 'Options:'),
-    '  --lang en|tr     Set display language (English or Turkish)',
-    '  --json           Output machine-readable JSON (status, doctor, miner, calc, verify)',
-    '  --interval <sec> Poll interval for watch (default: 15)',
-    '  --port <port>    Localhost port for dashboard (default: 4141)',
-    '  --version, -v    Print version',
-    '  --help, -h       Show this help',
+    '  --lang en|tr              Set display language (English or Turkish)',
+    '  --json                    Output machine-readable JSON (status, doctor, miner, calc, verify)',
+    '  --interval <sec>          Poll interval for watch/autopilot (default: 15 / 600)',
+    '  --auto-spend              Arm bounded Testnet inference auto-spend when public lane opens',
+    '  --spend-max-flop <N>      Max $FLOP per autopilot inference tx (default: 0.01)',
+    '  --spend-interval-hours <N> Min hours between autopilot spend txs (default: 6)',
+    '  --port <port>             Localhost port for dashboard (default: 4141)',
+    '  --version, -v             Print version',
+    '  --help, -h                Show this help',
   ];
   console.log(drawBox(`${BRANDING.toolName} CLI`, lines, { borderColor: c.cyan }));
 }
@@ -151,6 +160,9 @@ async function main() {
       once: flags.once,
       keystore: flags.keystore,
       passwordEnv: flags.passwordEnv,
+      autoSpend: flags.autoSpend,
+      spendMaxFlop: flags.spendMaxFlop,
+      spendIntervalHours: flags.spendIntervalHours,
     });
   } else if (command === 'doctor') {
     runDoctor(lang, { json: flags.json });

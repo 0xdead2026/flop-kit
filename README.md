@@ -16,6 +16,7 @@
 Most testnet setup scripts are opaque wrappers with dozens of external dependencies and outdated commands. `flop-kit` is engineered from scratch around the **official Flop Labs documentation** (`docs.flop.network`, `flop.network/llms.txt`, and `@flop-labs/cli@0.10.2` / `@flop-labs/sdk@0.13.1`):
 
 * **0 External Dependencies:** Pure modern Node.js ESM (`dependencies: {}`). No `npm install`, no Python `venv` headaches, zero supply-chain risk — every line is auditable in minutes.
+* **Bounded `0.01 $FLOP` Auto-Spend + Daily Rollover Autopilot (`v1.5.0`):** Optionally pass `--auto-spend --spend-max-flop 0.01 --spend-interval-hours 6` to `autopilot`: watches both public Testnet Gateway wallet enrollment (`404 → 200`) and direct-offer miners on `testnet.flopscan.io`, automatically runs a capped `0.01 $FLOP` inference when public spending opens, and clears `agent_spend_missing` rollover blocks for the next daily faucet grant.
 * **Live Testnet Gateway & Serving Models Telemetry (`v1.4.0`):** Queries `https://gateway.testnet.flop.network/health` and `/v1/models` to report live serving models (such as `qwen/qwen3-14b`), active miner counts, and throughput capacity directly in `status`, `autopilot`, and `dashboard`.
 * **Signed Testnet Faucet Claim (`claim`):** Implements the official `flop-faucet-agent/v1` signed claim flow (`/v1/testnet/agent-claims` for `10 test $FLOP / 24h`) with genesis verification, 120s busy-queue timeout, and safe idempotent nonce handling (never loops on stale 502s).
 * **Live Faucet `/chain` & `/limits` Telemetry:** Reads real-time Testnet faucet status (`open`), pending queue size, and daily remaining cap.
@@ -27,7 +28,7 @@ Most testnet setup scripts are opaque wrappers with dozens of external dependenc
 
 ## Quickstart (Zero Install Required)
 
-Requires **Node.js 20+** (Node **22+** recommended for running official `@flop-labs/cli@0.7.0`).
+Requires **Node.js 20+** (Node **22+** recommended for running official `@flop-labs/cli@0.10.2`).
 
 ```bash
 git clone https://github.com/0xdead2026/flop-kit.git
@@ -53,7 +54,7 @@ node bin/flop-kit.js dashboard
 | `node bin/flop-kit.js claim [--check]` | Signed Testnet Agent faucet claim (`10 $FLOP / 24h`) via official `/v1/testnet/agent-claims` with auto idempotent nonce retry |
 | `node bin/flop-kit.js did [--create]` | Generate or inspect an encrypted W3C Ed25519 `did:key:z6Mk...` identity (0 dependencies, saved outside Git) |
 | `node bin/flop-kit.js watch [--interval 15]` | Activation Sniper — alerts on runtime upgrade or faucet shift |
-| `node bin/flop-kit.js autopilot [--interval 600]` | 24/7 VPS daemon (~40MB RAM) — monitors health/activation and auto-claims 10 `$FLOP` when faucet is ready |
+| `node bin/flop-kit.js autopilot [--auto-spend --spend-max-flop 0.01]` | 24/7 VPS daemon (0 MB idle with `systemd.timer`) — auto-claims daily 10 `$FLOP` + runs bounded `0.01 $FLOP` Testnet inference once public spending opens |
 | `node bin/flop-kit.js doctor [--json]` | Audit Node, npm, Docker, CPU, RAM, disk, NVIDIA GPU VRAM & role eligibility |
 | `node bin/flop-kit.js agent` | `$0` Agent Hub: local keystore dir, official `session run` builder, Hermes/MCP, ecosystem paths |
 | `node bin/flop-kit.js validator` | Validator 3-step checklist, Testnet genesis check & GitHub `operator-application.yml` receipt generator |

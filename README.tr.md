@@ -16,6 +16,7 @@
 Çoğu testnet aracı onlarca harici kütüphane kuran, güncel olmayan komutlar kullanan basit sarmalayıcılardır. `flop-kit`, tamamen **resmi Flop Labs dökümanları** (`docs.flop.network`, `flop.network/llms.txt` ve `@flop-labs/cli@0.10.2` / `@flop-labs/sdk@0.13.1`) temel alınarak sıfırdan geliştirildi:
 
 * **0 Harici Bağımlılık:** Saf modern Node.js ESM (`dependencies: {}`). `npm install` yok, Python `venv` hatası yok, tedarik zinciri riski yok — kodun tamamı dakikalar içinde denetlenebilir.
+* **Limitli `0.01 $FLOP` Otomatik Harcama + Günlük Rollover Otopilotu (`v1.5.0`):** `autopilot --auto-spend --spend-max-flop 0.01 --spend-interval-hours 6` ile hem Testnet Gateway cüzdan kaydını (`404 → 200`) hem `testnet.flopscan.io` doğrudan miner uç noktalarını 7/24 izler; halka açık işlem açıldığı anda `0.01 $FLOP` limitli inference çalıştırır ve günlük faucet rollover kilidini (`agent_spend_missing`) otomatik açar.
 * **Canlı Testnet Gateway & Aktif Model Telemetrisi (`v1.4.0`):** `https://gateway.testnet.flop.network/health` ve `/v1/models` uç noktalarını sorgulayarak canlı servis veren modelleri (`qwen/qwen3-14b` vb.), aktif miner sayısını ve kapasiteyi doğrudan `status`, `autopilot` ve `dashboard` içinde gösterir.
 * **İmzalı Testnet Faucet Talebi (`claim`):** Resmi `flop-faucet-agent/v1` protokolünü (`/v1/testnet/agent-claims` ile günlük `10 test $FLOP`) genesis doğrulamalı, 120 sn yoğun kuyruk toleranslı ve akıllı idempotent `nonce` yönetimiyle uygular.
 * **7/24 VPS Otopilotu & `systemd` Kurulumu:** `autopilot` + Ubuntu `systemd` kurulum betiği (`systemd.timer` ile boşta 0 MB RAM), `ip_cooldown` koruması ve canlı `specVersion` yükseltme takibi.
@@ -26,7 +27,7 @@
 
 ## Hızlı Başlangıç (Kurulum / `npm install` Gerekmez)
 
-**Node.js 20+** gerekir (Resmi `@flop-labs/cli@0.7.0` için **Node 22+** önerilir).
+**Node.js 20+** gerekir (Resmi `@flop-labs/cli@0.10.2` için **Node 22+** önerilir).
 
 ```bash
 git clone https://github.com/0xdead2026/flop-kit.git
@@ -52,7 +53,7 @@ node bin/flop-kit.js dashboard --lang tr
 | `node bin/flop-kit.js claim --lang tr` | Resmi `/v1/testnet/agent-claims` ile imzalı Testnet 10 `$FLOP` Agent faucet talebi (`--check` ile durum sorgulama) |
 | `node bin/flop-kit.js did --create --lang tr` | Sıfır bağımlılıkla şifreli W3C Ed25519 `did:key:z6Mk...` kimliği oluştur / incele (Git reposu dışında saklanır) |
 | `node bin/flop-kit.js watch --lang tr` | Aktivasyon Takipçisi — runtime yükseltmesi veya faucet değişiminde alarm verir |
-| `node bin/flop-kit.js autopilot [--interval 600]` | 7/24 VPS servisi (~40MB RAM) — faucet `ready: true` olunca otomatik 10 `$FLOP` talep eder + aktivasyon izler |
+| `node bin/flop-kit.js autopilot [--auto-spend --spend-max-flop 0.01]` | 7/24 VPS servisi (`systemd.timer` ile boşta 0 MB RAM) — günlük 10 `$FLOP` talep eder + sistem açılınca `0.01 $FLOP` limitli işlem yapar |
 | `node bin/flop-kit.js doctor --lang tr` | Node, npm, Docker, CPU, RAM, disk, NVIDIA GPU VRAM ve rol uygunluk analizi |
 | `node bin/flop-kit.js agent --lang tr` | `\$0` Agent Merkezi: yerel keystore, resmi `session run` oluşturucu, Hermes/MCP, ekosistem yolları |
 | `node bin/flop-kit.js validator --lang tr` | Validatör 3 adımlı kontrol listesi, genesis doğrulama ve GitHub `operator-application.yml` kanıt şablonu |

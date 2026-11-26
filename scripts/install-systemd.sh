@@ -15,6 +15,10 @@ SERVICE_FILE="/etc/systemd/system/flop-kit-autopilot.service"
 KEYS_DIR="${HOME}/.flop-kit/keys"
 KEYSTORE_PATH="${KEYS_DIR}/agent-testnet.json"
 POLL_INTERVAL="${FLOP_AUTOPILOT_INTERVAL:-600}"
+AUTO_SPEND_FLAG=""
+if [[ "${FLOP_AUTO_SPEND:-0}" == "1" ]]; then
+  AUTO_SPEND_FLAG="--auto-spend --spend-max-flop ${FLOP_SPEND_MAX_FLOP:-0.01} --spend-interval-hours ${FLOP_SPEND_INTERVAL_HOURS:-6}"
+fi
 
 if [[ "${EUID}" -ne 0 ]]; then
   echo "Please run as root (or via: sudo bash scripts/install-systemd.sh)"
@@ -31,7 +35,7 @@ if command -v node >/dev/null 2>&1; then
 fi
 
 if [[ "${NODE_MAJOR}" -lt 22 ]]; then
-  echo "==> Installing Node.js 22 LTS (required for official @flop-labs/cli@0.8.3)..."
+  echo "==> Installing Node.js 22 LTS (required for official @flop-labs/cli@0.10.2)..."
   curl -fsSL https://deb.nodesource.com/setup_22.x | bash - >/dev/null
   apt-get install -y -qq nodejs >/dev/null
 fi
@@ -55,7 +59,7 @@ if [[ ! -f "${KEYSTORE_PATH}" ]]; then
   echo "  Option A (Recommended — keep your single test wallet, anti-sybil):"
   echo "    Copy your existing agent-testnet.json to ${KEYSTORE_PATH} (chmod 600)."
   echo "  Option B (Generate a brand-new sr25519 Testnet keystore on this VPS):"
-  echo "    FLOP_KEYSTORE_PASSWORD='YOUR_PASSWORD' npx --yes --package @flop-labs/cli@0.8.3 flop keys generate --name flop-agent-testnet --type sr25519 --out ${KEYSTORE_PATH} --password-env FLOP_KEYSTORE_PASSWORD"
+  echo "    FLOP_KEYSTORE_PASSWORD='YOUR_PASSWORD' npx --yes --package @flop-labs/cli@0.10.2 flop keys generate --name flop-agent-testnet --type sr25519 --out ${KEYSTORE_PATH} --password-env FLOP_KEYSTORE_PASSWORD"
   echo ""
 fi
 
@@ -88,7 +92,7 @@ Type=simple
 WorkingDirectory=${INSTALL_DIR}
 Environment=HOME=${HOME}
 EnvironmentFile=${ENV_FILE}
-ExecStart=${NODE_BIN} ${INSTALL_DIR}/bin/flop-kit.js autopilot --interval ${POLL_INTERVAL} --keystore ${KEYSTORE_PATH}
+ExecStart=${NODE_BIN} ${INSTALL_DIR}/bin/flop-kit.js autopilot --interval ${POLL_INTERVAL} --keystore ${KEYSTORE_PATH} ${AUTO_SPEND_FLAG}
 Restart=always
 RestartSec=30
 MemoryMax=300M

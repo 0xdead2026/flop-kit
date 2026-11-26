@@ -8,7 +8,11 @@ import { fileURLToPath } from 'node:url';
 import { NETWORKS } from '../src/constants.js';
 import { MESSAGES, t } from '../src/i18n.js';
 import { buildOfficialSessionCommand } from '../src/modules/agent.js';
-import { shouldAttemptAutoClaim } from '../src/modules/autopilot.js';
+import {
+  shouldAttemptAutoClaim,
+  shouldAttemptAutoSpend,
+  validateTestnetEnrollChallenge,
+} from '../src/modules/autopilot.js';
 import {
   calculateAgentUnlock,
   calculateMinerUnlock,
@@ -251,6 +255,74 @@ test('Autopilot claim gate enforces health readiness, verified testnet, and 24h 
     }).attempt,
     true
   );
+  // Rollover spend required blocks repeat claim until a spend completes
+  assert.equal(
+    shouldAttemptAutoClaim({
+      health: readyHealth,
+      faucet: openFaucet,
+      savedState: { txHash: '0x123', status: 'agent_spend_missing', updatedAt: '2026-11-25T23:00:00Z' },
+      nowMs: now,
+    }).attempt,
+    false
+  );
+  // Once spend completes, repeat claim unlocks immediately even if prior day's txHash is retained
+  assert.equal(
+    shouldAttemptAutoClaim({
+      health: readyHealth,
+      faucet: openFaucet,
+      savedState: { txHash: '0x123', status: 'spend_completed', updatedAt: '2026-11-25T23:30:00Z' },
+      nowMs: now,
+    }).attempt,
+    true
+  );
+});
+
+test('Autopilot auto-spend gate and pinned-genesis enrollment challenge validator work strictly', () => {
+  const now = Date.parse('2026-11-26T18:00:00Z');
+  assert.equal(shouldAttemptAutoSpend({ enabled: false, spendState: null, nowMs: now }).attempt, false);
+  assert.equal(shouldAttemptAutoSpend({ enabled: true, spendState: null, spendIntervalHours: 6, nowMs: now }).attempt, true);
+  assert.equal(
+    shouldAttemptAutoSpend({
+      enabled: true,
+      spendState: { lastSpendAt: '2026-11-26T15:00:00Z' },
+      spendIntervalHours: 6,
+      nowMs: now,
+    }).attempt,
+    false
+  );
+  assert.equal(
+    shouldAttemptAutoSpend({
+      enabled: true,
+      spendState: { lastSpendAt: '2026-11-26T10:00:00Z' },
+      spendIntervalHours: 6,
+      nowMs: now,
+    }).attempt,
+    true
+  );
+
+  const addr = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY';
+  const gwUrl = 'https://gateway.testnet.flop.network';
+  const genesis = NETWORKS.testnet.expectedGenesis.toLowerCase();
+  const validChallenge = [
+    'gateway.testnet.flop.network wants you to enroll a FLOP testnet gateway key with your account:',
+    addr,
+    '',
+    'Action: flop-testnet-enroll/v1',
+    `Genesis: ${genesis}`,
+    `Nonce: ${'a'.repeat(64)}`,
+    'Issued At: 2026-11-26T17:59:00Z',
+    'Expiration Time: 2026-11-26T18:04:00Z',
+  ].join('\n');
+
+  assert.equal(validateTestnetEnrollChallenge(validChallenge, addr, gwUrl, genesis, now), true);
+  assert.throws(
+    () => validateTestnetEnrollChallenge(validChallenge.replace(genesis, '0x' + '0'.repeat(64)), addr, gwUrl, genesis, now),
+    /strict format\/genesis/
+  );
+  assert.throws(
+    () => validateTestnetEnrollChallenge(validChallenge, addr, gwUrl, genesis, Date.parse('2026-11-26T18:05:00Z')),
+    /timestamps out of bounds/
+  );
 });
 
 test('Gateway probe parser extracts live serving models, miners, and capacity', () => {
@@ -284,7 +356,7 @@ test('Gateway probe parser extracts live serving models, miners, and capacity', 
 
 test('CLI binary runs --version, --help, doctor --json, calc --json, and verify --json cleanly', () => {
   const ver = execFileSync(process.execPath, [CLI_PATH, '--version'], { encoding: 'utf8' });
-  assert.match(ver, /flop-kit v1\.4\.0/);
+  assert.match(ver, /flop-kit v1\.5\.0/);
 
   const help = execFileSync(process.execPath, [CLI_PATH, '--help', '--lang', 'tr'], { encoding: 'utf8' });
   assert.match(help, /Kullanım:/);

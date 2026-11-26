@@ -12,7 +12,7 @@
  *      (never stores passwords or private keys).
  *
  * Zero-dependency architecture: locates @polkadot/keyring + @polkadot/util-crypto from the
- * official @flop-labs/cli@0.8.3 cache so flop-kit keeps `"dependencies": {}`.
+ * official @flop-labs/cli@0.10.2 cache so flop-kit keeps `"dependencies": {}`.
  */
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -113,7 +113,7 @@ function ensurePolkadotModules() {
   let nm = findPolkadotNodeModules();
   if (nm) return nm;
 
-  // Warm official @flop-labs/cli@0.8.3 npx cache cleanly (no extra third-party deps)
+  // Warm official @flop-labs/cli@0.10.2 npx cache cleanly (no extra third-party deps)
   const execBin = process.platform === 'win32' ? 'cmd.exe' : 'npx';
   const execArgs =
     process.platform === 'win32'
@@ -257,6 +257,7 @@ export async function submitSignedTestnetClaim({
     httpStatus: null,
     status: 'submitted_timeout',
     txHash: saved?.txHash || null,
+    lastGrantAt: saved?.lastGrantAt || null,
     amountFlop: faucetProbe.agentGrantFlop ?? 10,
     updatedAt: new Date().toISOString(),
   });
@@ -266,7 +267,7 @@ export async function submitSignedTestnetClaim({
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'User-Agent': 'flop-kit/1.3.0',
+      'User-Agent': 'flop-kit/1.5.0',
     },
     body: JSON.stringify({
       address,
@@ -287,6 +288,7 @@ export async function submitSignedTestnetClaim({
   const statusTag = body?.success
     ? body.status || 'submitted'
     : body?.reason || `http_${res.status}`;
+  const nowIso = new Date().toISOString();
 
   // Persist idempotent state (strictly public fields only — NO secrets)
   saveClaimState(address, {
@@ -298,8 +300,9 @@ export async function submitSignedTestnetClaim({
     httpStatus: res.status,
     status: statusTag,
     txHash: body?.txHash || saved?.txHash || null,
+    lastGrantAt: body?.success ? nowIso : saved?.lastGrantAt || null,
     amountFlop: body?.amount ?? faucetProbe.agentGrantFlop ?? 10,
-    updatedAt: new Date().toISOString(),
+    updatedAt: nowIso,
   });
 
   return {
