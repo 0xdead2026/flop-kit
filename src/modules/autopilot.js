@@ -13,7 +13,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { c, drawBox, formatNum } from '../ansi.js';
 import { OFFICIAL_LINKS } from '../constants.js';
-import { assertOfficialUrl, fetchNetworkSnapshot, probeFaucetIdentity } from '../rpc.js';
+import {
+  assertOfficialUrl,
+  fetchNetworkSnapshot,
+  probeFaucetIdentity,
+  probeGatewayStatus,
+} from '../rpc.js';
 import { getKeysDir } from './agent.js';
 import { loadSavedClaimState, submitSignedTestnetClaim } from './claim.js';
 
@@ -139,19 +144,22 @@ export async function runAutopilot(lang = 'en', options = {}) {
   try {
     while (!stopped) {
       cycle += 1;
-      const [tn, health, faucet] = await Promise.all([
+      const [tn, health, faucet, gw] = await Promise.all([
         fetchNetworkSnapshot('testnet'),
         probeFaucetHealth(),
         probeFaucetIdentity(),
+        probeGatewayStatus(),
       ]);
 
       const tnSummary = tn.ok
         ? `block=#${formatNum(tn.bestBlock)} spec=v${tn.specVersion} genesis=${tn.genesisVerified ? 'OK' : 'MISMATCH'} peers=${tn.peers}`
         : `rpc_error=${tn.error}`;
 
+      const gwSummary = `ok=${gw.ok} models=${gw.modelCount} miners=${gw.uniqueMinerCount}`;
+
       const faucetSummary = `health=${health.statusCode}/${health.status} ready=${health.ready} indexer=${health.indexerOk === false ? health.indexerReason || 'down' : health.indexerOk} queue=${faucet.pendingGrants ?? '?'} dailyLeft=${faucet.dailyRemainingFlop ?? '?'}`;
 
-      console.log(`[${ts()}] [CYCLE #${cycle}] TESTNET(${tnSummary}) | FAUCET(${faucetSummary})`);
+      console.log(`[${ts()}] [CYCLE #${cycle}] TESTNET(${tnSummary}) | GW(${gwSummary}) | FAUCET(${faucetSummary})`);
 
       // Alert loudly on runtime upgrade (possible scored activation block!)
       if (tn.ok && tn.specVersion !== null) {

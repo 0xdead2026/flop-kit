@@ -13,16 +13,14 @@
 
 ## `flop-kit` Neden Farklı?
 
-Çoğu testnet aracı onlarca harici kütüphane kuran, güncel olmayan komutlar kullanan basit sarmalayıcılardır. `flop-kit`, tamamen **resmi Flop Labs dökümanları** (`docs.flop.network`, `flop.network/llms.txt` ve `@flop-labs/cli@0.8.3`) temel alınarak sıfırdan geliştirildi:
+Çoğu testnet aracı onlarca harici kütüphane kuran, güncel olmayan komutlar kullanan basit sarmalayıcılardır. `flop-kit`, tamamen **resmi Flop Labs dökümanları** (`docs.flop.network`, `flop.network/llms.txt` ve `@flop-labs/cli@0.10.2` / `@flop-labs/sdk@0.13.1`) temel alınarak sıfırdan geliştirildi:
 
 * **0 Harici Bağımlılık:** Saf modern Node.js ESM (`dependencies: {}`). `npm install` yok, Python `venv` hatası yok, tedarik zinciri riski yok — kodun tamamı dakikalar içinde denetlenebilir.
-* **İmzalı Testnet Faucet Talebi (`claim` — v1.1.0):** Resmi `flop.network/llms.txt` dokümanındaki `flop-faucet-agent/v1` imzalı talep akışını (`/v1/testnet/agent-claims` ile günlük `10 test $FLOP`) uygular — resmi CLI'a henüz gelmeden önce! İmzalamadan önce faucet `/chain` ile canlı RPC blok 0 genesis eşleşmesini doğrular ve kuyrukta kalırsa idempotent `nonce` değerini otomatik saklar.
-* **Canlı Faucet `/chain` & `/limits` Telemetrisi:** Testnet faucet durumunu (`open`), bekleyen kuyruk sayısını ve günlük kalan kotayı anlık gösterir.
-* **Çift Arayüz (Terminal Kokpiti + Yerel Web Paneli):** İster ok tuşlarıyla yönetilen renkli **Terminal Kokpitini**, ister tek komutla açılan **Yerel Mission Control Web Panelini** (`127.0.0.1:4141`) kullan.
-* **Canlı Aktivasyon Takipçisi (`watch`):** Canlı Testnet JSON-RPC `specVersion` değişimlerini ve faucet geçişini izleyip aktivasyon anında alarm verir.
-* **Resmi Dökümana %100 Uyumlu Agent Akışı:** Hatalı `flop chat` yerine resmi bütçe limitli `session run` komutları ve harici ücretli API anahtarı gerektirmeyen Hermes + Hosted MCP (`https://mcp.flop.network/mcp`) kurulum şablonları üretir.
-* **Dahili Phishing / Oltalama Doğrulayıcı:** Resmi domain beyaz listesini (`flop.finance`, `flop.network`, `flopscan.io`, `technocore.chat`) kontrol eder ve sahte Discord/Telegram/Reddit/Medium gruplarını anında yakalar.
-* **Anlık TR / EN Dil Değişimi:** Terminal kokpitinde `L` tuşuna basarak anında Türkçe ↔ İngilizce geçiş yap.
+* **Canlı Testnet Gateway & Aktif Model Telemetrisi (`v1.4.0`):** `https://gateway.testnet.flop.network/health` ve `/v1/models` uç noktalarını sorgulayarak canlı servis veren modelleri (`qwen/qwen3-14b` vb.), aktif miner sayısını ve kapasiteyi doğrudan `status`, `autopilot` ve `dashboard` içinde gösterir.
+* **İmzalı Testnet Faucet Talebi (`claim`):** Resmi `flop-faucet-agent/v1` protokolünü (`/v1/testnet/agent-claims` ile günlük `10 test $FLOP`) genesis doğrulamalı, 120 sn yoğun kuyruk toleranslı ve akıllı idempotent `nonce` yönetimiyle uygular.
+* **7/24 VPS Otopilotu & `systemd` Kurulumu:** `autopilot` + Ubuntu `systemd` kurulum betiği (`systemd.timer` ile boşta 0 MB RAM), `ip_cooldown` koruması ve canlı `specVersion` yükseltme takibi.
+* **Şifreli Ed25519 `did:key` (`did --create`):** Sıfır dış bağımlılıkla (`node:crypto`) W3C `did:key:z6Mk...` kimliği üretip Git reposu dışında şifreli saklar.
+* **Çift Arayüz (Terminal Kokpiti + Yerel Web Paneli):** Ok tuşlu TR/EN **Terminal Kokpiti** + yalnızca yerelde (`127.0.0.1:4141`) açılan **Mission Control Web Paneli** (3:1 Airdrop simülatörü ve Anti-Phishing doğrulayıcı dahil).
 
 ---
 

@@ -265,14 +265,15 @@ function updateCalc() {
 function updateCmd() {
   const net = document.getElementById('cmdNet').value;
   const cap = document.getElementById('cmdCap').value || '0.01';
+  const model = net === 'testnet' ? 'qwen/qwen3-14b' : 'qwen/qwen2.5-0.5b-instruct';
   const lines = [
     'npx --yes --package ' + CFG.cliPackage + ' flop \\\\',
     '  --network ' + net + ' \\\\',
     '  --keystore ~/.flop-kit/keys/agent-' + net + '.json \\\\',
-    '  --password-env FLOP_KEY_PASSWORD \\\\',
+    '  --password-env FLOP_KEYSTORE_PASSWORD \\\\',
     '  session run \\\\',
     '  --miner "<MINER_SS58>" \\\\',
-    '  --model qwen/qwen2.5-0.5b-instruct \\\\',
+    '  --model ' + model + ' \\\\',
     '  --prompt "Verify Proof of Useful Inference." \\\\',
     '  --max-flop ' + cap + ' --via auto --json'
   ];
@@ -288,11 +289,15 @@ async function loadTelemetry() {
     if (tn.ok) {
       tnBadge.className = 'badge ' + (tn.genesisVerified ? 'b-ok' : 'b-err');
       tnBadge.textContent = tn.genesisVerified ? 'GENESIS VERIFIED' : 'GENESIS MISMATCH';
+      const gw = data.gateway;
+      const gwSummary = gw && gw.ok
+        ? '<span class="badge b-ok">LIVE</span> ' + gw.modelCount + ' models · ' + gw.uniqueMinerCount + ' miners'
+        : '<span class="badge b-warn">' + (gw ? gw.status : 'OFFLINE') + '</span>';
       document.getElementById('testnetBody').innerHTML =
         kv('Chain', tn.chainName) +
-        kv('Best Block', '#' + fmt(tn.bestBlock)) +
-        kv('Finalized Block', '#' + fmt(tn.finalizedBlock)) +
+        kv('Best / Finalized Block', '#' + fmt(tn.bestBlock) + ' / #' + fmt(tn.finalizedBlock)) +
         kv('Runtime Spec', (tn.specName || 'flop') + ' v' + tn.specVersion) +
+        kv('Testnet Gateway', gwSummary) +
         kv('RPC Peers / Latency', fmt(tn.peers) + ' / ' + tn.latencyMs + 'ms') +
         kv('Genesis', tn.genesisHash.slice(0, 14) + '…' + tn.genesisHash.slice(-8));
     } else {

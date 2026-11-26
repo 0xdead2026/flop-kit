@@ -4,7 +4,7 @@
  */
 export const BRANDING = Object.freeze({
   toolName: 'flop-kit',
-  version: '1.3.0',
+  version: '1.4.0',
   taglineEn: 'Zero-Dependency FLOP Network Testnet Cockpit & Mission Control',
   taglineTr: 'Bağımlılıksız FLOP Network Testnet Kokpiti & Kontrol Merkezi',
   authorDisplay: '0xdead',

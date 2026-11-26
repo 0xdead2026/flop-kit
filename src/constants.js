@@ -8,8 +8,8 @@
  */
 
 export const OFFICIAL_CLI = Object.freeze({
-  cliPackage: '@flop-labs/cli@0.8.3',
-  sdkPackage: '@flop-labs/sdk@0.11.0',
+  cliPackage: '@flop-labs/cli@0.10.2',
+  sdkPackage: '@flop-labs/sdk@0.13.1',
   pythonSdkPackage: 'flop-sdk==0.3.2',
   minNodeMajor: 22,
   validatorNodeMajor: 24,
@@ -30,6 +30,7 @@ export const NETWORKS = Object.freeze({
       '485ecb44635609ab261ea3002c3c9fdc7a5dab38caf28a86f654cadf443893be',
     explorer: 'https://testnet.flopscan.io/',
     faucet: 'https://faucet.flop.network/',
+    gateway: 'https://gateway.testnet.flop.network',
     scoredNoteEn:
       'Opening phase is UNSCORED. Earning begins only at the publicly announced finalized activation block (no backfill).',
     scoredNoteTr:
@@ -68,6 +69,7 @@ export const OFFICIAL_LINKS = Object.freeze({
   explorerTestnet: 'https://testnet.flopscan.io/',
   explorerDevnet: 'https://explorer.devnet.flop.network/',
   gatewayApi: 'https://api.flop.network/v1',
+  gatewayTestnet: 'https://gateway.testnet.flop.network',
   mcpEndpoint: 'https://mcp.flop.network/mcp',
   technocore: 'https://technocore.chat/',
   askBot: 'https://ask.flop.finance/',

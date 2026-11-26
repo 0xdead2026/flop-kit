@@ -42,8 +42,24 @@ export async function runStatus(lang = 'en', options = {}) {
     return data;
   }
 
+  const gw = data.gateway;
+  const gwLines = gw
+    ? [
+        '',
+        c.bold(lang === 'tr' ? 'CANLI TESTNET GATEWAY & AKTİF MODELLER' : 'LIVE TESTNET GATEWAY & SERVING MODELS'),
+        `  Gateway: ${gw.ok ? badge('LIVE · OK', 'green') : badge(String(gw.status || 'OFFLINE').toUpperCase(), 'yellow')}  ${c.gray(gw.url)}  |  ${lang === 'tr' ? 'Aktif Model' : 'Models'}: ${c.brightCyan(formatNum(gw.modelCount))}  |  ${lang === 'tr' ? 'Servis Veren Miner' : 'Serving Miners'}: ${c.brightGreen(formatNum(gw.uniqueMinerCount))}`,
+        ...(gw.models?.length
+          ? gw.models.map(
+              (m) =>
+                `    • ${c.white(m.id)}  ${c.gray(`(${m.minerCount} miners · ${m.capacityTpm ? formatNum(m.capacityTpm) + ' tok/min' : 'n/a'})`)}`
+            )
+          : [`    ${c.gray(lang === 'tr' ? 'Henüz aktif servis veren model yok.' : 'No actively serving models yet.')}`]),
+      ]
+    : [];
+
   const lines = [
     ...renderNetworkLines(data.testnet, lang),
+    ...gwLines,
     '',
     ...renderNetworkLines(data.devnet, lang),
     '',

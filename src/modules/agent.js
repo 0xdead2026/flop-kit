@@ -27,22 +27,23 @@ export function ensureKeysDir() {
 }
 
 export function buildOfficialSessionCommand({
-  network = 'devnet',
+  network = 'testnet',
   keystorePath = path.join(getKeysDir(), `agent-${network}.json`),
   miner = '<MINER_SS58_ADDRESS>',
-  model = 'qwen/qwen2.5-0.5b-instruct',
+  model,
   prompt = 'Summarize Proof of Useful Inference in one sentence.',
   maxFlop = '0.01',
 } = {}) {
-  const net = network === 'testnet' ? 'testnet' : 'devnet';
+  const net = network === 'devnet' ? 'devnet' : 'testnet';
+  const resolvedModel = model || (net === 'testnet' ? 'qwen/qwen3-14b' : 'qwen/qwen2.5-0.5b-instruct');
   return [
     `npx --yes --package ${OFFICIAL_CLI.cliPackage} flop \\`,
     `  --network ${net} \\`,
     `  --keystore "${keystorePath}" \\`,
-    `  --password-env FLOP_KEY_PASSWORD \\`,
+    `  --password-env FLOP_KEYSTORE_PASSWORD \\`,
     `  session run \\`,
     `  --miner "${miner}" \\`,
-    `  --model ${model} \\`,
+    `  --model ${resolvedModel} \\`,
     `  --prompt "${prompt.replace(/"/g, '\\"')}" \\`,
     `  --max-flop ${maxFlop} \\`,
     `  --via auto --json`,

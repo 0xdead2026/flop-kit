@@ -33,6 +33,7 @@ import {
   hexBlockToNumber,
   isOfficialFlopHost,
   parseFaucetApiProbe,
+  parseGatewayProbe,
 } from '../src/rpc.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -84,9 +85,10 @@ test('Airdrop unlock math matches ratified protocol formulas', () => {
 });
 
 test('Official session command builder uses session run and spend cap', () => {
-  const cmd = buildOfficialSessionCommand({ network: 'devnet', maxFlop: '0.02' });
-  assert.match(cmd, /@flop-labs\/cli@0\.8\.3/);
+  const cmd = buildOfficialSessionCommand({ network: 'testnet', maxFlop: '0.02' });
+  assert.match(cmd, /@flop-labs\/cli@0\.10\.2/);
   assert.match(cmd, /session run/);
+  assert.match(cmd, /qwen\/qwen3-14b/);
   assert.match(cmd, /--max-flop 0\.02/);
   assert.doesNotMatch(cmd, /\bflop chat\b/);
 });
@@ -251,9 +253,38 @@ test('Autopilot claim gate enforces health readiness, verified testnet, and 24h 
   );
 });
 
+test('Gateway probe parser extracts live serving models, miners, and capacity', () => {
+  const parsed = parseGatewayProbe(
+    { status: 'ok', connected: true, image: { version: '0.1.497' } },
+    {
+      data: [
+        {
+          id: 'qwen/qwen3-14b',
+          name: 'Qwen3 14B (FLOP Testnet)',
+          context_length: 40960,
+          'x-flop': {
+            capacity_tpm: 29238335,
+            price_sources: [
+              { miner_address: '5MinerA' },
+              { miner_address: '5MinerB' },
+            ],
+          },
+        },
+      ],
+    },
+    'https://gateway.testnet.flop.network',
+    200
+  );
+  assert.equal(parsed.ok, true);
+  assert.equal(parsed.modelCount, 1);
+  assert.equal(parsed.uniqueMinerCount, 2);
+  assert.equal(parsed.models[0].id, 'qwen/qwen3-14b');
+  assert.equal(parsed.models[0].capacityTpm, 29238335);
+});
+
 test('CLI binary runs --version, --help, doctor --json, calc --json, and verify --json cleanly', () => {
   const ver = execFileSync(process.execPath, [CLI_PATH, '--version'], { encoding: 'utf8' });
-  assert.match(ver, /flop-kit v1\.3\.0/);
+  assert.match(ver, /flop-kit v1\.4\.0/);
 
   const help = execFileSync(process.execPath, [CLI_PATH, '--help', '--lang', 'tr'], { encoding: 'utf8' });
   assert.match(help, /Kullanım:/);

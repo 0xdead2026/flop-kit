@@ -13,16 +13,15 @@
 
 ## Why `flop-kit` Is Different
 
-Most testnet setup scripts are opaque wrappers with dozens of external dependencies and outdated commands. `flop-kit` is engineered from scratch around the **official Flop Labs documentation** (`docs.flop.network`, `flop.network/llms.txt`, and `@flop-labs/cli@0.8.3`):
+Most testnet setup scripts are opaque wrappers with dozens of external dependencies and outdated commands. `flop-kit` is engineered from scratch around the **official Flop Labs documentation** (`docs.flop.network`, `flop.network/llms.txt`, and `@flop-labs/cli@0.10.2` / `@flop-labs/sdk@0.13.1`):
 
 * **0 External Dependencies:** Pure modern Node.js ESM (`dependencies: {}`). No `npm install`, no Python `venv` headaches, zero supply-chain risk — every line is auditable in minutes.
-* **Signed Testnet Faucet Claim (`claim` — v1.1.0):** Implements the official `flop-faucet-agent/v1` signed claim flow (`/v1/testnet/agent-claims` for `10 test $FLOP / 24h`) documented in `flop.network/llms.txt` — even before the official CLI adds a Testnet claim subcommand! Verifies both faucet `/chain` and live RPC block 0 genesis before signing, and preserves pending nonces automatically for safe idempotent retries.
+* **Live Testnet Gateway & Serving Models Telemetry (`v1.4.0`):** Queries `https://gateway.testnet.flop.network/health` and `/v1/models` to report live serving models (such as `qwen/qwen3-14b`), active miner counts, and throughput capacity directly in `status`, `autopilot`, and `dashboard`.
+* **Signed Testnet Faucet Claim (`claim`):** Implements the official `flop-faucet-agent/v1` signed claim flow (`/v1/testnet/agent-claims` for `10 test $FLOP / 24h`) with genesis verification, 120s busy-queue timeout, and safe idempotent nonce handling (never loops on stale 502s).
 * **Live Faucet `/chain` & `/limits` Telemetry:** Reads real-time Testnet faucet status (`open`), pending queue size, and daily remaining cap.
-* **Dual Interface (TUI + Local Web Dashboard):** Use the keyboard-driven ANSI **Terminal Cockpit** OR launch the built-in **Local Mission Control Web UI** (`127.0.0.1:4141`) with live telemetry, unlock simulator, and anti-phishing checker.
-* **Live Activation Sniper (`watch`):** Monitors live Testnet JSON-RPC `specVersion` upgrades and faucet transitions so you know the moment scored earning begins.
-* **Official-Spec Agent Flow:** Generates official capped `session run` commands (avoiding the broken `flop chat` path) and Hermes + Hosted MCP (`https://mcp.flop.network/mcp`) configs.
-* **Built-In Anti-Phishing Verifier:** Enforces an official root-domain allowlist (`flop.finance`, `flop.network`, `flopscan.io`, `technocore.chat`) and flags fake Discord/Telegram/Reddit/Medium scams instantly.
-* **Instant EN / TR Bilingual CLI:** Press `L` anywhere in the Terminal Cockpit to switch between English and Turkish.
+* **24/7 VPS Autopilot & `systemd` Installer:** Lightweight `autopilot` daemon + Ubuntu `systemd` setup (~0 MB idle RAM with `systemd.timer`), cooldown-aware (`ip_cooldown` / `address_cooldown`), and runtime `specVersion` upgrade watcher.
+* **Encrypted Ed25519 `did:key` (`did --create`):** Zero-dependency W3C `did:key:z6Mk...` generator using Node `node:crypto` only, saved encrypted outside Git.
+* **Dual Interface (TUI + Local Web Dashboard):** Keyboard-driven ANSI **Terminal Cockpit** + local-only **Mission Control Web UI** (`127.0.0.1:4141`) with live telemetry, 3:1 unlock simulator, and anti-phishing verifier.
 
 ---
 

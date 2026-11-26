@@ -79,7 +79,7 @@ export const MESSAGES = Object.freeze({
       warningUnscored:
         'Testnet is in its unscored opening phase with 0 active miners. Practice safely on Devnet today, then switch to --network testnet once the scored activation block & faucet open.',
       actions: [
-        '1. Check official @flop-labs/cli@0.8.3 availability',
+        '1. Check official @flop-labs/cli@0.10.2 availability',
         '2. Create / inspect dedicated local keystore directory (~/.flop-kit/keys)',
         '3. Generate official `session run` command (capped test FLOP spend)',
         '4. View Hermes Agent + Hosted MCP (https://mcp.flop.network/mcp) setup',
@@ -199,7 +199,7 @@ export const MESSAGES = Object.freeze({
       warningUnscored:
         'Testnet şu an puansız açılış aşamasında ve aktif miner sayısı 0. Bugün Devnet üzerinde ücretsiz prova yapabilir, aktivasyon bloğu ve Testnet musluğu açıldığında --network testnet ile geçebilirsin.',
       actions: [
-        '1. Resmi @flop-labs/cli@0.8.3 erişilebilirliğini kontrol et',
+        '1. Resmi @flop-labs/cli@0.10.2 erişilebilirliğini kontrol et',
         '2. Ayrı yerel keystore klasörü oluştur / incele (~/.flop-kit/keys)',
         '3. Resmi `session run` (bütçe limitli harcama) komutu üret',
         '4. Hermes Agent + Hosted MCP (https://mcp.flop.network/mcp) kurulum bilgisi',

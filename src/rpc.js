@@ -315,11 +315,91 @@ export async function probeFaucetIdentity(timeoutMs = 8000) {
   }
 }
 
+export function parseGatewayProbe(healthJson, modelsJson, safeUrl, healthStatus = 200) {
+  const rawModels = Array.isArray(modelsJson?.data) ? modelsJson.data : [];
+  const models = rawModels.map((m) => {
+    const xFlop = m?.['x-flop'] || {};
+    const priceSources = Array.isArray(xFlop.price_sources) ? xFlop.price_sources : [];
+    const uniqueMiners = new Set(priceSources.map((p) => p?.miner_address).filter(Boolean));
+    const capacityTpm =
+      xFlop.capacity_tpm ?? xFlop.measurements?.capacity_tpm?.value ?? null;
+    return {
+      id: m.id,
+      name: m.name || m.id,
+      contextLength: m.context_length ?? null,
+      minerCount: uniqueMiners.size,
+      capacityTpm,
+    };
+  });
+
+  const allMiners = new Set();
+  for (const m of rawModels) {
+    for (const p of m?.['x-flop']?.price_sources || []) {
+      if (p?.miner_address) allMiners.add(p.miner_address);
+    }
+  }
+
+  return {
+    ok: healthStatus >= 200 && healthStatus < 300 && Boolean(healthJson?.connected),
+    statusCode: healthStatus,
+    url: safeUrl,
+    status: healthJson?.status || (healthStatus >= 200 && healthStatus < 300 ? 'ok' : `http_${healthStatus}`),
+    connected: Boolean(healthJson?.connected),
+    version: healthJson?.image?.version || healthJson?.version || null,
+    modelCount: models.length,
+    uniqueMinerCount: allMiners.size,
+    models,
+    checkedAt: new Date().toISOString(),
+  };
+}
+
+export async function probeGatewayStatus(timeoutMs = 8000) {
+  const safeBase = assertOfficialUrl(OFFICIAL_LINKS.gatewayTestnet);
+  const healthUrl = assertOfficialUrl(`${OFFICIAL_LINKS.gatewayTestnet}/health`);
+  const modelsUrl = assertOfficialUrl(`${OFFICIAL_LINKS.gatewayTestnet}/v1/models`);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const [healthRes, modelsRes] = await Promise.all([
+      fetch(healthUrl, {
+        method: 'GET',
+        headers: { 'User-Agent': 'flop-kit/1.4.0', Accept: 'application/json' },
+        signal: controller.signal,
+      }),
+      fetch(modelsUrl, {
+        method: 'GET',
+        headers: { 'User-Agent': 'flop-kit/1.4.0', Accept: 'application/json' },
+        signal: controller.signal,
+      }).catch(() => null),
+    ]);
+
+    const healthJson = await healthRes.json().catch(() => null);
+    const modelsJson = modelsRes && modelsRes.ok ? await modelsRes.json().catch(() => null) : null;
+    return parseGatewayProbe(healthJson, modelsJson, safeBase, healthRes.status);
+  } catch (err) {
+    return {
+      ok: false,
+      statusCode: 0,
+      url: safeBase,
+      status: 'unreachable',
+      connected: false,
+      modelCount: 0,
+      uniqueMinerCount: 0,
+      models: [],
+      error: err?.message || String(err),
+      checkedAt: new Date().toISOString(),
+    };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export async function fetchFullTelemetry() {
-  const [testnet, devnet, faucet] = await Promise.all([
+  const [testnet, devnet, faucet, gateway] = await Promise.all([
     fetchNetworkSnapshot('testnet'),
     fetchNetworkSnapshot('devnet'),
     probeFaucetIdentity(),
+    probeGatewayStatus(),
   ]);
-  return { testnet, devnet, faucet, checkedAt: new Date().toISOString() };
+  return { testnet, devnet, faucet, gateway, checkedAt: new Date().toISOString() };
 }
