@@ -210,20 +210,28 @@ export async function submitSignedTestnetClaim({
   const saved = loadSavedClaimState(address);
   let nonce;
   let reusedPendingNonce = false;
-  const nonFinalStatuses = new Set([
+  // Only reuse a saved nonce when the faucet actually queued/accepted it or timed out
+  // ambiguously (504 / 429). Never pin a nonce on unqueued errors like indexer_unavailable
+  // or origin 502 Bad Gateway (which can loop forever after a faucet server upgrade).
+  const reusableStatuses = new Set([
     'grant_pending',
     'included',
     'submitted',
     'http_429',
-    'http_500',
-    'http_502',
-    'http_503',
     'http_504',
   ]);
+  const savedAgeMs = saved?.updatedAt ? Date.now() - Date.parse(saved.updatedAt) : Infinity;
+  const maxReuseAgeMs = 4 * 60 * 60 * 1000; // 4 hours
 
   if (explicitNonce) {
     nonce = String(explicitNonce).trim();
-  } else if (!forceNewNonce && saved?.nonce && nonFinalStatuses.has(saved?.status)) {
+  } else if (
+    !forceNewNonce &&
+    saved?.nonce &&
+    reusableStatuses.has(saved?.status) &&
+    Number.isFinite(savedAgeMs) &&
+    savedAgeMs < maxReuseAgeMs
+  ) {
     nonce = String(saved.nonce);
     reusedPendingNonce = true;
   } else {
