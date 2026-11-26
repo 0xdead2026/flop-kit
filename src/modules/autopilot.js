@@ -30,12 +30,19 @@ export function shouldAttemptAutoClaim({ health, faucet, savedState, nowMs = Dat
     return { attempt: false, reason: `faucet_closed (status=${faucet.faucetStatus ?? 'unknown'})` };
   }
 
-  // Respect 24h cooldown if a prior claim already succeeded
-  if (savedState?.txHash && savedState?.status !== 'grant_pending') {
+  // Respect 24h cooldown if a prior claim already succeeded or faucet reported cooldown
+  const cooldownStatuses = new Set(['ip_cooldown', 'address_cooldown', 'rollover_spend_required']);
+  if (
+    (savedState?.txHash && savedState?.status !== 'grant_pending') ||
+    cooldownStatuses.has(savedState?.status)
+  ) {
     const updatedAt = Date.parse(savedState.updatedAt || '');
     if (Number.isFinite(updatedAt) && nowMs - updatedAt < COOLDOWN_MS) {
       const hoursLeft = ((COOLDOWN_MS - (nowMs - updatedAt)) / 3600000).toFixed(1);
-      return { attempt: false, reason: `cooldown_active (${hoursLeft}h left; tx=${savedState.txHash})` };
+      return {
+        attempt: false,
+        reason: `cooldown_active (${hoursLeft}h left; status=${savedState.status}${savedState.txHash ? `, tx=${savedState.txHash}` : ''})`,
+      };
     }
   }
 
