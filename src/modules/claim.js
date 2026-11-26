@@ -217,6 +217,7 @@ export async function submitSignedTestnetClaim({
     'grant_pending',
     'included',
     'submitted',
+    'submitted_timeout',
     'http_429',
     'http_504',
   ]);
@@ -246,19 +247,33 @@ export async function submitSignedTestnetClaim({
     throw new Error(`Decoded keystore address (${signed.address}) differs from metadata (${address}).`);
   }
 
-  // Step 4: Submit POST to official /v1/testnet/agent-claims
+  // Persist idempotent nonce BEFORE POST so even a network timeout preserves the same nonce
+  saveClaimState(address, {
+    network: 'testnet',
+    address,
+    nonce,
+    genesisHash: expectedGenesis,
+    claimUrl,
+    httpStatus: null,
+    status: 'submitted_timeout',
+    txHash: saved?.txHash || null,
+    amountFlop: faucetProbe.agentGrantFlop ?? 10,
+    updatedAt: new Date().toISOString(),
+  });
+
+  // Step 4: Submit POST to official /v1/testnet/agent-claims (120s timeout for busy queues)
   const res = await fetch(claimUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'User-Agent': 'flop-kit/1.1.0',
+      'User-Agent': 'flop-kit/1.3.0',
     },
     body: JSON.stringify({
       address,
       nonce,
       signature: signed.signature,
     }),
-    signal: AbortSignal.timeout(45000),
+    signal: AbortSignal.timeout(120000),
   });
 
   const rawText = await res.text();
