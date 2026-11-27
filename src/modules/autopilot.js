@@ -60,11 +60,24 @@ export function saveSpendState(address, state) {
   return p;
 }
 
+export function isAgentFaucetReady(health) {
+  if (!health) return false;
+  if (health.ok && health.ready) return true;
+  // Faucet v0.1.517+ returns HTTP 503 / status=degraded / ready=false when Miner/Validator
+  // sponsor RPC budget is degraded, even while the Agent Faucet itself is open and healthy.
+  return (
+    health.signerOk === true &&
+    health.indexerOk === true &&
+    health.signingHeld === false &&
+    health.faucetFundingStatus === 'open'
+  );
+}
+
 export function shouldAttemptAutoClaim({ health, faucet, savedState, nowMs = Date.now() }) {
-  if (!health?.ok || !health?.ready) {
+  if (!isAgentFaucetReady(health)) {
     return {
       attempt: false,
-      reason: `faucet_not_ready (http=${health?.statusCode ?? '?'}, status=${health?.status ?? 'unknown'})`,
+      reason: `faucet_not_ready (http=${health?.statusCode ?? '?'}, status=${health?.status ?? 'unknown'}, faucetFunding=${health?.faucetFundingStatus ?? '?'})`,
     };
   }
   if (!faucet?.ok || faucet?.detectedTarget !== 'testnet' || !faucet?.genesisVerified) {
@@ -184,9 +197,11 @@ export async function probeFaucetHealth(timeoutMs = 10000) {
       statusCode: res.status,
       status: json?.status || (res.ok ? 'ok' : `http_${res.status}`),
       ready: Boolean(json?.ready),
+      signerOk: json?.dependencies?.signer?.ok ?? null,
       indexerOk: json?.dependencies?.indexer?.ok ?? null,
       indexerReason: json?.dependencies?.indexer?.reason || null,
       signingHeld: json?.dependencies?.signing?.held ?? null,
+      faucetFundingStatus: json?.dependencies?.funding?.faucet?.status || null,
       version: json?.image?.version || null,
     };
   } catch (err) {

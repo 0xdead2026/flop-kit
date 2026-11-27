@@ -265,6 +265,24 @@ test('Autopilot claim gate enforces health readiness, verified testnet, and 24h 
     }).attempt,
     false
   );
+  // Faucet v0.1.517+: top-level ready=false due to miner sponsor degradation still allows Agent Faucet when signer+indexer+faucetFunding are healthy
+  assert.equal(
+    shouldAttemptAutoClaim({
+      health: {
+        ok: false,
+        ready: false,
+        statusCode: 503,
+        status: 'degraded',
+        signerOk: true,
+        indexerOk: true,
+        signingHeld: false,
+        faucetFundingStatus: 'open',
+      },
+      faucet: openFaucet,
+      savedState: null,
+    }).attempt,
+    true
+  );
   // Once spend completes, repeat claim unlocks immediately even if prior day's txHash is retained
   assert.equal(
     shouldAttemptAutoClaim({
@@ -356,7 +374,7 @@ test('Gateway probe parser extracts live serving models, miners, and capacity', 
 
 test('CLI binary runs --version, --help, doctor --json, calc --json, and verify --json cleanly', () => {
   const ver = execFileSync(process.execPath, [CLI_PATH, '--version'], { encoding: 'utf8' });
-  assert.match(ver, /flop-kit v1\.5\.0/);
+  assert.match(ver, /flop-kit v1\.5\.1/);
 
   const help = execFileSync(process.execPath, [CLI_PATH, '--help', '--lang', 'tr'], { encoding: 'utf8' });
   assert.match(help, /Kullanım:/);
