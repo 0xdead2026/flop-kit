@@ -90,7 +90,7 @@ test('Airdrop unlock math matches ratified protocol formulas', () => {
 
 test('Official session command builder uses session run and spend cap', () => {
   const cmd = buildOfficialSessionCommand({ network: 'testnet', maxFlop: '0.02' });
-  assert.match(cmd, /@flop-labs\/cli@0\.10\.2/);
+  assert.match(cmd, /@flop-labs\/cli@0\.10\.3/);
   assert.match(cmd, /session run/);
   assert.match(cmd, /qwen\/qwen3-14b/);
   assert.match(cmd, /--max-flop 0\.02/);
@@ -374,7 +374,7 @@ test('Gateway probe parser extracts live serving models, miners, and capacity', 
 
 test('CLI binary runs --version, --help, doctor --json, calc --json, and verify --json cleanly', () => {
   const ver = execFileSync(process.execPath, [CLI_PATH, '--version'], { encoding: 'utf8' });
-  assert.match(ver, /flop-kit v1\.5\.1/);
+  assert.match(ver, /flop-kit v1\.5\.2/);
 
   const help = execFileSync(process.execPath, [CLI_PATH, '--help', '--lang', 'tr'], { encoding: 'utf8' });
   assert.match(help, /Kullanım:/);

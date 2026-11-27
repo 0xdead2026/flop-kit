@@ -13,7 +13,7 @@
 
 ## `flop-kit` Neden Farklı?
 
-Çoğu testnet aracı onlarca harici kütüphane kuran, güncel olmayan komutlar kullanan basit sarmalayıcılardır. `flop-kit`, tamamen **resmi Flop Labs dökümanları** (`docs.flop.network`, `flop.network/llms.txt` ve `@flop-labs/cli@0.10.2` / `@flop-labs/sdk@0.13.1`) temel alınarak sıfırdan geliştirildi:
+Çoğu testnet aracı onlarca harici kütüphane kuran, güncel olmayan komutlar kullanan basit sarmalayıcılardır. `flop-kit`, tamamen **resmi Flop Labs dökümanları** (`docs.flop.network`, `flop.network/llms.txt` ve `@flop-labs/cli@0.10.3` / `@flop-labs/sdk@0.13.1`) temel alınarak sıfırdan geliştirildi:
 
 * **0 Harici Bağımlılık:** Saf modern Node.js ESM (`dependencies: {}`). `npm install` yok, Python `venv` hatası yok, tedarik zinciri riski yok — kodun tamamı dakikalar içinde denetlenebilir.
 * **Limitli `0.01 $FLOP` Otomatik Harcama + Günlük Rollover Otopilotu (`v1.5.0`):** `autopilot --auto-spend --spend-max-flop 0.01 --spend-interval-hours 6` ile hem Testnet Gateway cüzdan kaydını (`404 → 200`) hem `testnet.flopscan.io` doğrudan miner uç noktalarını 7/24 izler; halka açık işlem açıldığı anda `0.01 $FLOP` limitli inference çalıştırır ve günlük faucet rollover kilidini (`agent_spend_missing`) otomatik açar.
@@ -27,7 +27,7 @@
 
 ## Hızlı Başlangıç (Kurulum / `npm install` Gerekmez)
 
-**Node.js 20+** gerekir (Resmi `@flop-labs/cli@0.10.2` için **Node 22+** önerilir).
+**Node.js 20+** gerekir (Resmi `@flop-labs/cli@0.10.3` için **Node 22+** önerilir).
 
 ```bash
 git clone https://github.com/0xdead2026/flop-kit.git

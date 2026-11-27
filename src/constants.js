@@ -8,7 +8,7 @@
  */
 
 export const OFFICIAL_CLI = Object.freeze({
-  cliPackage: '@flop-labs/cli@0.10.2',
+  cliPackage: '@flop-labs/cli@0.10.3',
   sdkPackage: '@flop-labs/sdk@0.13.1',
   pythonSdkPackage: 'flop-sdk==0.3.2',
   minNodeMajor: 22,

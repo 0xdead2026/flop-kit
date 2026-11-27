@@ -182,7 +182,7 @@ export async function probeFaucetHealth(timeoutMs = 10000) {
   try {
     const res = await fetch(url, {
       method: 'GET',
-      headers: { 'User-Agent': 'flop-kit/1.5.0', Accept: 'application/json' },
+      headers: { 'User-Agent': 'flop-kit/1.5.2', Accept: 'application/json' },
       signal: controller.signal,
     });
     const text = await res.text();
@@ -226,7 +226,7 @@ export async function probeGatewayWalletEnrollment(address, timeoutMs = 8000) {
   try {
     const res = await fetch(url, {
       method: 'GET',
-      headers: { 'User-Agent': 'flop-kit/1.5.0', Accept: 'application/json' },
+      headers: { 'User-Agent': 'flop-kit/1.5.2', Accept: 'application/json' },
       redirect: 'error',
       signal: controller.signal,
     });
@@ -249,7 +249,7 @@ export async function findDirectOfferMiner(timeoutMs = 8000) {
   try {
     const res = await fetch(url, {
       method: 'GET',
-      headers: { 'User-Agent': 'flop-kit/1.5.0', Accept: 'application/json' },
+      headers: { 'User-Agent': 'flop-kit/1.5.2', Accept: 'application/json' },
       signal: controller.signal,
     });
     if (!res.ok) return null;
@@ -295,7 +295,7 @@ async function executeGatewayEnrollAndInference({
       const cached = JSON.parse(fs.readFileSync(keyFile, 'utf8'));
       if (cached?.key && cached?.gateway === gatewayBase) {
         const me = await fetch(assertOfficialUrl(`${gatewayBase}/v1/keys/me`), {
-          headers: { Authorization: `Bearer ${cached.key}`, 'User-Agent': 'flop-kit/1.5.0' },
+          headers: { Authorization: `Bearer ${cached.key}`, 'User-Agent': 'flop-kit/1.5.2' },
           signal: AbortSignal.timeout(8000),
         });
         if (me.ok) {
@@ -314,7 +314,7 @@ async function executeGatewayEnrollAndInference({
     const signed = await signWithKeystore(keystorePath, password, challengeMessage);
     const enrollRes = await fetch(assertOfficialUrl(`${gatewayBase}/v1/enroll/wallet`), {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'User-Agent': 'flop-kit/1.5.0' },
+      headers: { 'Content-Type': 'application/json', 'User-Agent': 'flop-kit/1.5.2' },
       body: JSON.stringify({ address, message: challengeMessage, signature: signed.signature }),
       redirect: 'error',
       signal: AbortSignal.timeout(60000),
@@ -339,7 +339,7 @@ async function executeGatewayEnrollAndInference({
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${bearerKey}`,
-      'User-Agent': 'flop-kit/1.5.0',
+      'User-Agent': 'flop-kit/1.5.2',
     },
     body: JSON.stringify({
       model: targetModel,

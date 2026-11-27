@@ -13,7 +13,7 @@
 
 ## Why `flop-kit` Is Different
 
-Most testnet setup scripts are opaque wrappers with dozens of external dependencies and outdated commands. `flop-kit` is engineered from scratch around the **official Flop Labs documentation** (`docs.flop.network`, `flop.network/llms.txt`, and `@flop-labs/cli@0.10.2` / `@flop-labs/sdk@0.13.1`):
+Most testnet setup scripts are opaque wrappers with dozens of external dependencies and outdated commands. `flop-kit` is engineered from scratch around the **official Flop Labs documentation** (`docs.flop.network`, `flop.network/llms.txt`, and `@flop-labs/cli@0.10.3` / `@flop-labs/sdk@0.13.1`):
 
 * **0 External Dependencies:** Pure modern Node.js ESM (`dependencies: {}`). No `npm install`, no Python `venv` headaches, zero supply-chain risk — every line is auditable in minutes.
 * **Bounded `0.01 $FLOP` Auto-Spend + Daily Rollover Autopilot (`v1.5.0`):** Optionally pass `--auto-spend --spend-max-flop 0.01 --spend-interval-hours 6` to `autopilot`: watches both public Testnet Gateway wallet enrollment (`404 → 200`) and direct-offer miners on `testnet.flopscan.io`, automatically runs a capped `0.01 $FLOP` inference when public spending opens, and clears `agent_spend_missing` rollover blocks for the next daily faucet grant.
@@ -28,7 +28,7 @@ Most testnet setup scripts are opaque wrappers with dozens of external dependenc
 
 ## Quickstart (Zero Install Required)
 
-Requires **Node.js 20+** (Node **22+** recommended for running official `@flop-labs/cli@0.10.2`).
+Requires **Node.js 20+** (Node **22+** recommended for running official `@flop-labs/cli@0.10.3`).
 
 ```bash
 git clone https://github.com/0xdead2026/flop-kit.git

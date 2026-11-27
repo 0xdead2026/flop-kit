@@ -77,9 +77,9 @@ export const MESSAGES = Object.freeze({
     agent: {
       title: '$0 AGENT HUB (OFFICIAL CLI WORKFLOW)',
       warningUnscored:
-        'Testnet is in its unscored opening phase with 0 active miners. Practice safely on Devnet today, then switch to --network testnet once the scored activation block & faucet open.',
+        'Testnet is in its unscored opening phase (public agent inference opens soon). Practice safely on Devnet today, or keep autopilot armed for --network testnet.',
       actions: [
-        '1. Check official @flop-labs/cli@0.10.2 availability',
+        '1. Check official @flop-labs/cli@0.10.3 availability',
         '2. Create / inspect dedicated local keystore directory (~/.flop-kit/keys)',
         '3. Generate official `session run` command (capped test FLOP spend)',
         '4. View Hermes Agent + Hosted MCP (https://mcp.flop.network/mcp) setup',
@@ -197,9 +197,9 @@ export const MESSAGES = Object.freeze({
     agent: {
       title: '$0 AGENT MERKEZİ (RESMİ CLI AKIŞI)',
       warningUnscored:
-        'Testnet şu an puansız açılış aşamasında ve aktif miner sayısı 0. Bugün Devnet üzerinde ücretsiz prova yapabilir, aktivasyon bloğu ve Testnet musluğu açıldığında --network testnet ile geçebilirsin.',
+        'Testnet şu an puansız açılış aşamasında (halka açık agent inference yakında açılacak). Devnet üzerinde prova yapabilir veya --network testnet için autopilot hazır bekletebilirsin.',
       actions: [
-        '1. Resmi @flop-labs/cli@0.10.2 erişilebilirliğini kontrol et',
+        '1. Resmi @flop-labs/cli@0.10.3 erişilebilirliğini kontrol et',
         '2. Ayrı yerel keystore klasörü oluştur / incele (~/.flop-kit/keys)',
         '3. Resmi `session run` (bütçe limitli harcama) komutu üret',
         '4. Hermes Agent + Hosted MCP (https://mcp.flop.network/mcp) kurulum bilgisi',

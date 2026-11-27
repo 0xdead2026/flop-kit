@@ -12,7 +12,7 @@
  *      (never stores passwords or private keys).
  *
  * Zero-dependency architecture: locates @polkadot/keyring + @polkadot/util-crypto from the
- * official @flop-labs/cli@0.10.2 cache so flop-kit keeps `"dependencies": {}`.
+ * official @flop-labs/cli@0.10.3 cache so flop-kit keeps `"dependencies": {}`.
  */
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -113,7 +113,7 @@ function ensurePolkadotModules() {
   let nm = findPolkadotNodeModules();
   if (nm) return nm;
 
-  // Warm official @flop-labs/cli@0.10.2 npx cache cleanly (no extra third-party deps)
+  // Warm official @flop-labs/cli@0.10.3 npx cache cleanly (no extra third-party deps)
   const execBin = process.platform === 'win32' ? 'cmd.exe' : 'npx';
   const execArgs =
     process.platform === 'win32'
@@ -267,7 +267,7 @@ export async function submitSignedTestnetClaim({
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'User-Agent': 'flop-kit/1.5.0',
+      'User-Agent': 'flop-kit/1.5.2',
     },
     body: JSON.stringify({
       address,

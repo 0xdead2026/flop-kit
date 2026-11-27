@@ -35,7 +35,7 @@ if command -v node >/dev/null 2>&1; then
 fi
 
 if [[ "${NODE_MAJOR}" -lt 22 ]]; then
-  echo "==> Installing Node.js 22 LTS (required for official @flop-labs/cli@0.10.2)..."
+  echo "==> Installing Node.js 22 LTS (required for official @flop-labs/cli@0.10.3)..."
   curl -fsSL https://deb.nodesource.com/setup_22.x | bash - >/dev/null
   apt-get install -y -qq nodejs >/dev/null
 fi
@@ -59,7 +59,7 @@ if [[ ! -f "${KEYSTORE_PATH}" ]]; then
   echo "  Option A (Recommended — keep your single test wallet, anti-sybil):"
   echo "    Copy your existing agent-testnet.json to ${KEYSTORE_PATH} (chmod 600)."
   echo "  Option B (Generate a brand-new sr25519 Testnet keystore on this VPS):"
-  echo "    FLOP_KEYSTORE_PASSWORD='YOUR_PASSWORD' npx --yes --package @flop-labs/cli@0.10.2 flop keys generate --name flop-agent-testnet --type sr25519 --out ${KEYSTORE_PATH} --password-env FLOP_KEYSTORE_PASSWORD"
+  echo "    FLOP_KEYSTORE_PASSWORD='YOUR_PASSWORD' npx --yes --package @flop-labs/cli@0.10.3 flop keys generate --name flop-agent-testnet --type sr25519 --out ${KEYSTORE_PATH} --password-env FLOP_KEYSTORE_PASSWORD"
   echo ""
 fi
 
